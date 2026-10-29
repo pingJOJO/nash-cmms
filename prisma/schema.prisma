@@ -1,0 +1,535 @@
+// Prisma Schema for NASH CMMS
+// Production-ready PostgreSQL schema with normalized relations
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum WorkOrderStatus {
+  OPEN
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AssetStatus {
+  OPERATIONAL
+  DOWN
+  EMERGENCY_SHUTDOWN
+  IN_STORAGE
+}
+
+enum UserRole {
+  ADMINISTRATOR
+  TECHNICIAN
+  REQUESTER
+  MANAGER
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CONVERTED
+}
+
+enum ABCClass {
+  A_CRITICAL
+  B_ESSENTIAL
+  C_GENERAL
+}
+
+enum RiskLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  STATUS_CHANGE
+  STOCK_ADJUSTMENT
+  CALIBRATION
+  VOICE_ENTRY
+}
+
+enum SubscriptionTier {
+  TRIAL
+  BASIC
+  HOSPITAL_FACTORY
+  ENTERPRISE
+}
+
+enum InventoryCountStatus {
+  IN_PROGRESS
+  COMPLETED
+  DISCREPANCY_FOUND
+}
+
+model User {
+  id              String         @id @default(cuid())
+  name            String
+  email           String         @unique
+  phone           String?
+  role            UserRole       @default(TECHNICIAN)
+  jobTitle        String?
+  hourlyRate      Decimal        @default(0.00) @db.Decimal(10, 2)
+  avatar          String?
+  scheduled       Boolean        @default(true)
+  lastLogin       String?
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  assignedWorkOrders     WorkOrder[]              @relation("AssignedTech")
+  createdWorkOrders      WorkOrder[]              @relation("CreatedBy")
+  laborLogs              LaborLog[]
+  comments               Comment[]
+  primaryAssets          Asset[]                  @relation("PrimaryWorker")
+  assignedParts          Part[]                   @relation("PartAssignedTo")
+  preventiveMaintenances PreventiveMaintenance[]
+  meters                 Meter[]
+  maintenanceRequests    MaintenanceRequest[]
+  createdLocations       Location[]               @relation("LocationCreatedBy")
+
+  // ═══ V2: New Relations ═══
+  calibrations           CalibrationRecord[]      @relation("CalibratedBy")
+  auditLogs              AuditLog[]               @relation("AuditLogUser")
+  inventoryCounts        InventoryCount[]         @relation("InventoryCountUser")
+  voiceCommands          VoiceCommandLog[]        @relation("VoiceCommands")
+
+  @@map("users")
+}
+
+model Location {
+  id          String      @id @default(cuid())
+  name        String
+  address     String?
+  description String?
+  createdById String?
+  createdBy   User?       @relation("LocationCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  assets                 Asset[]
+  workOrders             WorkOrder[]
+  preventiveMaintenances PreventiveMaintenance[]
+  meters                 Meter[]
+  maintenanceRequests    MaintenanceRequest[]
+
+  @@map("locations")
+}
+
+model Category {
+  id          String      @id @default(cuid())
+  name        String
+  type        String      // "WORK_ORDER", "ASSET", "PART", "METER", "COST", "TIMER", "PURCHASE_REQUEST"
+  createdAt   DateTime    @default(now())
+
+  assets      Asset[]
+  workOrders  WorkOrder[]
+  parts       Part[]
+
+  @@map("categories")
+}
+
+model Asset {
+  id              String         @id @default(cuid())
+  name            String
+  status          AssetStatus    @default(OPERATIONAL)
+  model           String?
+  serialNumber    String?
+  barcode         String?        @unique
+  area            String?
+  description     String?
+  imageUrl        String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // ═══ V2: Equipment Life File (HCAC/JCI) ═══
+  purchaseDate    DateTime?
+  purchasePrice   Decimal?       @db.Decimal(12, 2)
+  warrantyExpiry  DateTime?
+  manufacturer    String?
+  riskLevel       RiskLevel      @default(LOW)
+
+  locationId      String?
+  location        Location?      @relation(fields: [locationId], references: [id])
+  categoryId      String?
+  category        Category?      @relation(fields: [categoryId], references: [id])
+  primaryWorkerId String?
+  primaryWorker   User?          @relation("PrimaryWorker", fields: [primaryWorkerId], references: [id])
+
+  workOrders          WorkOrder[]
+  pms                 PreventiveMaintenance[]
+  meters              Meter[]
+  maintenanceRequests MaintenanceRequest[]
+
+  // ═══ V2: New Relations ═══
+  calibrations        CalibrationRecord[]
+  bomParts            AssetBOM[]
+  auditLogs           AuditLog[]             @relation("AssetAuditLogs")
+
+  @@map("assets")
+}
+
+model WorkOrder {
+  id                     String          @id @default(cuid())
+  code                   String          @unique // e.g. WO000001
+  title                  String
+  description            String?
+  status                 WorkOrderStatus @default(OPEN)
+  priority               Priority        @default(NONE)
+  imageUrl               String?
+  dueDate                DateTime?
+  expectedStartDate      DateTime?
+  estimatedDurationHours Decimal?        @db.Decimal(5, 2)
+  requiresSignature      Boolean         @default(false)
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+
+  locationId             String?
+  location               Location?       @relation(fields: [locationId], references: [id])
+  assetId                String?
+  asset                  Asset?          @relation(fields: [assetId], references: [id])
+  categoryId             String?
+  category               Category?       @relation(fields: [categoryId], references: [id])
+  assignedToId           String?
+  assignedTo             User?           @relation("AssignedTech", fields: [assignedToId], references: [id])
+  createdById            String
+  createdBy              User            @relation("CreatedBy", fields: [createdById], references: [id])
+
+  tasks                  WorkOrderTask[]
+  labors                 LaborLog[]
+  additionalCosts        AdditionalCost[]
+  partsUsed              WorkOrderPart[]
+  comments               Comment[]
+
+  @@map("work_orders")
+}
+
+model WorkOrderTask {
+  id          String     @id @default(cuid())
+  title       String
+  completed   Boolean    @default(false)
+  orderIndex  Int        @default(0)
+  workOrderId String
+  workOrder   WorkOrder  @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@map("work_order_tasks")
+}
+
+model LaborLog {
+  id          String     @id @default(cuid())
+  hours       Decimal    @db.Decimal(5, 2)
+  hourlyRate  Decimal    @db.Decimal(10, 2)
+  date        DateTime   @default(now())
+  description String?
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  workOrderId String
+  workOrder   WorkOrder  @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@map("labor_logs")
+}
+
+model AdditionalCost {
+  id          String     @id @default(cuid())
+  description String
+  amount      Decimal    @db.Decimal(10, 2)
+  category    String
+  date        DateTime   @default(now())
+  workOrderId String
+  workOrder   WorkOrder  @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@map("additional_costs")
+}
+
+model Part {
+  id           String          @id @default(cuid())
+  name         String
+  cost         Decimal         @db.Decimal(10, 2)
+  quantity     Int             @default(0)
+  minQuantity  Int             @default(0)
+  barcode      String?         @unique
+  area         String?
+  description  String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  // ═══ V2: ABC Classification & Warehouse Location ═══
+  abcClass             ABCClass        @default(C_GENERAL)
+  warehouseLocationId  String?
+  warehouseLocation    WarehouseLocation? @relation(fields: [warehouseLocationId], references: [id])
+
+  categoryId   String?
+  category     Category?       @relation(fields: [categoryId], references: [id])
+  assignedToId String?
+  assignedTo   User?           @relation("PartAssignedTo", fields: [assignedToId], references: [id])
+  workOrders   WorkOrderPart[]
+
+  // ═══ V2: New Relations ═══
+  assetBOMs          AssetBOM[]
+  inventoryItems     InventoryCountItem[]
+
+  @@map("parts")
+}
+
+model WorkOrderPart {
+  id          String     @id @default(cuid())
+  quantity    Int        @default(1)
+  unitCost    Decimal    @db.Decimal(10, 2)
+  partId      String
+  part        Part       @relation(fields: [partId], references: [id])
+  workOrderId String
+  workOrder   WorkOrder  @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@map("work_order_parts")
+}
+
+model PreventiveMaintenance {
+  id             String    @id @default(cuid())
+  name           String
+  workOrderTitle String
+  priority       Priority  @default(NONE)
+  description    String?
+  frequency      String?   // e.g. "Quarterly", "Weekly"
+  scheduleRule   String?   // e.g. "FREQ=MONTHLY;INTERVAL=3"
+  nextDueDate    DateTime
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  assetId        String?
+  asset          Asset?    @relation(fields: [assetId], references: [id])
+  locationId     String?
+  location       Location? @relation(fields: [locationId], references: [id])
+  assignedToId   String?
+  assignedTo     User?     @relation(fields: [assignedToId], references: [id])
+
+  @@map("preventive_maintenances")
+}
+
+model MaintenanceRequest {
+  id          String        @id @default(cuid())
+  title       String
+  priority    Priority      @default(NONE)
+  status      RequestStatus @default(PENDING)
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  locationId  String?
+  location    Location?     @relation(fields: [locationId], references: [id])
+  assetId     String?
+  asset       Asset?        @relation(fields: [assetId], references: [id])
+  createdById String?
+  createdBy   User?         @relation(fields: [createdById], references: [id])
+
+  @@map("maintenance_requests")
+}
+
+model Meter {
+  id              String    @id @default(cuid())
+  name            String
+  unit            String
+  lastReading     Decimal   @db.Decimal(12, 2)
+  nextReadingDue  DateTime?
+  createdAt       DateTime  @default(now())
+
+  assetId         String?
+  asset           Asset?    @relation(fields: [assetId], references: [id])
+  locationId      String?
+  location        Location? @relation(fields: [locationId], references: [id])
+  createdById     String?
+  createdBy       User?     @relation(fields: [createdById], references: [id])
+
+  @@map("meters")
+}
+
+model Vendor {
+  id          String    @id @default(cuid())
+  companyName String
+  contactName String?
+  email       String?
+  phone       String?
+  website     String?
+  vendorType  String?
+  hourlyRate  Decimal?  @db.Decimal(10, 2)
+  description String?
+  createdAt   DateTime  @default(now())
+
+  @@map("vendors")
+}
+
+model Comment {
+  id          String     @id @default(cuid())
+  text        String
+  createdAt   DateTime   @default(now())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  workOrderId String
+  workOrder   WorkOrder  @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model SystemSetting {
+  id                   String   @id @default("default")
+  language             String   @default("English")
+  dateFormat           String   @default("MM/DD/YY")
+  timeZone             String   @default("Etc/GMT+9")
+  currency             String   @default("Dollar - $")
+  preWorkOrderLeadDays Int      @default(1)
+  csvSeparator         String   @default(",")
+  brandColor           String   @default("#0ea5e9")
+  updatedAt            DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+// ═══════════════════════════════════════════════════════════
+// V2 MODELS — NexCMMS Master Plan v2.0 (Review 08 Response)
+// ═══════════════════════════════════════════════════════════
+
+model WarehouseLocation {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  label       String
+  level       String    // "WAREHOUSE" | "ZONE" | "RACK" | "BIN"
+  qrCode      String?   @unique
+  colorCode   String?   // Hex color for visual coding
+  parentId    String?
+  parent      WarehouseLocation?  @relation("LocationHierarchy", fields: [parentId], references: [id])
+  children    WarehouseLocation[] @relation("LocationHierarchy")
+  parts       Part[]
+  createdAt   DateTime  @default(now())
+
+  @@map("warehouse_locations")
+}
+
+model AssetBOM {
+  id              String    @id @default(cuid())
+  assetId         String
+  asset           Asset     @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  partId          String
+  part            Part      @relation(fields: [partId], references: [id])
+  quantityNeeded  Int       @default(1)
+  notes           String?
+  createdAt       DateTime  @default(now())
+
+  @@unique([assetId, partId])
+  @@map("asset_bom")
+}
+
+model CalibrationRecord {
+  id              String    @id @default(cuid())
+  assetId         String
+  asset           Asset     @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  calibrationDate DateTime
+  nextDueDate     DateTime
+  performedById   String?
+  performedBy     User?     @relation("CalibratedBy", fields: [performedById], references: [id])
+  certificateUrl  String?
+  vendor          String?
+  result          String?   // "PASS" | "FAIL" | "CONDITIONAL"
+  notes           String?
+  createdAt       DateTime  @default(now())
+
+  @@map("calibration_records")
+}
+
+model AuditLog {
+  id            String      @id @default(cuid())
+  action        AuditAction
+  entityType    String
+  entityId      String
+  userId        String
+  user          User        @relation("AuditLogUser", fields: [userId], references: [id])
+  assetId       String?
+  asset         Asset?      @relation("AssetAuditLogs", fields: [assetId], references: [id])
+  previousValue String?     @db.Text
+  newValue      String?     @db.Text
+  reason        String?
+  ipAddress     String?
+  timestamp     DateTime    @default(now())
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+model Subscription {
+  id              String           @id @default(cuid())
+  tier            SubscriptionTier @default(TRIAL)
+  maxAssets       Int              @default(50)
+  maxUsers        Int              @default(3)
+  maxLocations    Int              @default(1)
+  featuresEnabled String[]
+  startsAt        DateTime         @default(now())
+  expiresAt       DateTime?
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@map("subscriptions")
+}
+
+model InventoryCount {
+  id            String               @id @default(cuid())
+  title         String
+  status        InventoryCountStatus  @default(IN_PROGRESS)
+  conductedById String
+  conductedBy   User                 @relation("InventoryCountUser", fields: [conductedById], references: [id])
+  startedAt     DateTime             @default(now())
+  completedAt   DateTime?
+  items         InventoryCountItem[]
+
+  @@map("inventory_counts")
+}
+
+model InventoryCountItem {
+  id               String         @id @default(cuid())
+  inventoryCountId String
+  inventoryCount   InventoryCount @relation(fields: [inventoryCountId], references: [id], onDelete: Cascade)
+  partId           String
+  part             Part           @relation(fields: [partId], references: [id])
+  systemQuantity   Int
+  actualQuantity   Int
+  discrepancy      Int            @default(0)
+  scannedAt        DateTime       @default(now())
+
+  @@map("inventory_count_items")
+}
+
+model VoiceCommandLog {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation("VoiceCommands", fields: [userId], references: [id])
+  rawTranscript  String    @db.Text
+  language       String    @default("ar")
+  parsedJson     String    @db.Text
+  actionType     String    // "CREATE_WO" | "CLOSE_WO" | "STOCK_UPDATE" | "INVENTORY_COUNT"
+  entityId       String?
+  confidence     Decimal?  @db.Decimal(3, 2)
+  processingMs   Int?
+  createdAt      DateTime  @default(now())
+
+  @@map("voice_command_logs")
+}
