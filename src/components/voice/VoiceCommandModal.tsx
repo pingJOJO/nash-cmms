@@ -307,8 +307,8 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
         } else if (event.error === 'network') {
           setMicError(
             language === 'ar'
-              ? 'تعذر الاتصال بخدمة التعرف الصوتي السحابية (مشكلة شبكة). يمكنك استخدام الأوامر السريعة للتجربة الفورية.'
-              : 'Cloud speech network error. Please use quick sample commands below.'
+              ? 'تعتمد ميزة التعرف الصوتي في المتصفح على خوادم Google/Microsoft السحابية، وقد تعذر الاتصال بها بسبب إعدادات المتصفح أو الشبكة. يمكنك استخدام متصفح Chrome، أو الضغط على "تجربة محاكاة صوتية فورية" لتشغيل الميزة تلقائياً.'
+              : 'Browser speech recognition requires a connection to cloud speech servers (blocked by network/browser settings). Please use Google Chrome or click "Run Instant Voice Simulation".'
           );
         } else if (event.error === 'no-speech') {
           setMicError(
