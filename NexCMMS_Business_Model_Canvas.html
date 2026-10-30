@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>مخطط نموذج العمل التجاري — NexCMMS Enterprise (Business Model Canvas)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+
+    @page {
+      size: A4 landscape;
+      margin: 8mm 10mm 8mm 10mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f8fafc;
+      color: #0f172a;
+      font-size: 8.5pt;
+      line-height: 1.35;
+    }
+
+    .toolbar {
+      background: #0f172a;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+
+    .toolbar-title {
+      font-size: 11pt;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 9pt;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #0369a1;
+    }
+
+    .btn-secondary {
+      background: #334155;
+    }
+
+    .btn-secondary:hover {
+      background: #475569;
+    }
+
+    .canvas-container {
+      max-width: 1380px;
+      margin: 12px auto;
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      border: 1px solid #e2e8f0;
+    }
+
+    /* HEADER */
+    .canvas-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+
+    .canvas-title-group h1 {
+      margin: 0;
+      font-size: 20pt;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+
+    .canvas-title-group .sub {
+      font-size: 9.5pt;
+      color: #64748b;
+      font-weight: 600;
+      margin-top: 1px;
+    }
+
+    .header-meta-grid {
+      display: flex;
+      gap: 14px;
+    }
+
+    .meta-box {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 4px 10px;
+      min-width: 130px;
+    }
+
+    .meta-box label {
+      display: block;
+      font-size: 7pt;
+      color: #64748b;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .meta-box input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: #0f172a;
+      outline: none;
+      padding: 0;
+    }
+
+    /* GRID LAYOUT - 9 BLOCKS */
+    .bmc-grid {
+      display: grid;
+      grid-template-columns: 2fr 2fr 2.2fr 2fr 2fr;
+      grid-template-rows: auto auto auto;
+      border: 1.5px solid #0f172a;
+      background: #cbd5e1;
+      gap: 1.5px;
+    }
+
+    .bmc-cell {
+      background: #ffffff;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      min-height: 195px;
+    }
+
+    /* Span rules to form classic BMC */
+    .cell-partners {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+    }
+
+    .cell-activities {
+      grid-column: 2;
+      grid-row: 1;
+      min-height: 145px;
+    }
+
+    .cell-resources {
+      grid-column: 2;
+      grid-row: 2;
+      min-height: 145px;
+    }
+
+    .cell-value {
+      grid-column: 3;
+      grid-row: 1 / span 2;
+      background: #f0fdf4;
+      border-right: 2px solid #16a34a;
+      border-left: 2px solid #16a34a;
+    }
+
+    .cell-relationships {
+      grid-column: 4;
+      grid-row: 1;
+      min-height: 145px;
+    }
+
+    .cell-channels {
+      grid-column: 4;
+      grid-row: 2;
+      min-height: 145px;
+    }
+
+    .cell-segments {
+      grid-column: 5;
+      grid-row: 1 / span 2;
+    }
+
+    .cell-costs {
+      grid-column: 1 / span 3;
+      grid-row: 3;
+      min-height: 135px;
+      background: #fef2f2;
+    }
+
+    .cell-revenues {
+      grid-column: 4 / span 2;
+      grid-row: 3;
+      min-height: 135px;
+      background: #f0fdfa;
+    }
+
+    .cell-header {
+      margin-bottom: 5px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 3px;
+    }
+
+    .cell-title-ar {
+      font-size: 9.5pt;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cell-title-en {
+      font-size: 7.5pt;
+      font-weight: 600;
+      color: #64748b;
+      direction: ltr;
+      text-align: left;
+    }
+
+    .cell-guide {
+      font-size: 6.5pt;
+      color: #94a3b8;
+      line-height: 1.2;
+      margin-top: 2px;
+      font-style: italic;
+    }
+
+    .cell-content {
+      flex: 1;
+      outline: none;
+      font-size: 7.8pt;
+      color: #1e293b;
+      line-height: 1.35;
+    }
+
+    .cell-content ul {
+      margin: 4px 0;
+      padding-right: 14px;
+      padding-left: 0;
+    }
+
+    .cell-content li {
+      margin-bottom: 4px;
+    }
+
+    .cell-content strong {
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .badge-icon {
+      font-size: 9pt;
+      margin-left: 4px;
+    }
+
+    /* PRINT STYLES */
+    @media print {
+      .toolbar {
+        display: none !important;
+      }
+
+      body {
+        background: white;
+      }
+
+      .canvas-container {
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        max-width: 100%;
+      }
+
+      .bmc-cell {
+        min-height: auto;
+      }
+
+      .cell-activities, .cell-resources, .cell-relationships, .cell-channels {
+        min-height: 135px;
+      }
+
+      .cell-partners, .cell-value, .cell-segments {
+        min-height: 280px;
+      }
+
+      .cell-costs, .cell-revenues {
+        min-height: 125px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOOLBAR (Hidden in Print) -->
+  <div class="toolbar">
+    <div class="toolbar-title">
+      <span>📊</span>
+      <span>مخطط نموذج العمل التجاري التفاعلي (Business Model Canvas) — نظام NexCMMS Enterprise</span>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn btn-secondary" onclick="resetDefaults()">إعادة تعيين النموذج الأصلي</button>
+      <button class="btn" onclick="window.print()">🖨️ طباعة / تصدير PDF</button>
+    </div>
+  </div>
+
+  <div class="canvas-container">
+
+    <!-- HEADER -->
+    <div class="canvas-header">
+      <div class="canvas-title-group">
+        <h1>Business Model Canvas <span>| مخطط نموذج العمل التجاري</span></h1>
+        <div class="sub">شركة NexCMMS لأنظمة الصيانة وإدارة الأصول الذكية (المنشآت الصحية والصناعية الكبرى)</div>
+      </div>
+      <div class="header-meta-grid">
+        <div class="meta-box">
+          <label>Designed for / صُمم لـ:</label>
+          <input type="text" id="designedFor" value="NexCMMS Enterprise V2">
+        </div>
+        <div class="meta-box">
+          <label>Designed by / بواسطة:</label>
+          <input type="text" id="designedBy" value="إدارة الاستراتيجية وتطوير الأعمال">
+        </div>
+        <div class="meta-box">
+          <label>Date / التاريخ:</label>
+          <input type="text" id="canvasDate" value="30 أكتوبر 2026">
+        </div>
+        <div class="meta-box" style="min-width: 80px;">
+          <label>Version / الإصدار:</label>
+          <input type="text" id="canvasVersion" value="2.0 Commercial">
+        </div>
+      </div>
+    </div>
+
+    <!-- THE 9 BLOCKS CANVAS -->
+    <div class="bmc-grid">
+
+      <!-- 1. KEY PARTNERS -->
+      <div class="bmc-cell cell-partners">
+        <div class="cell-header">
+          <div class="cell-title-ar">
+            <span><span class="badge-icon">🤝</span> الشركاء الرئيسيون</span>
+          </div>
+          <div class="cell-title-en">Key Partners</div>
+          <div class="cell-guide">من هم الشركاء والموردون الأساسيون؟ وما هي الموارد التي نعتمد عليهم فيها؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true" id="blockPartners">
+          <ul>
+            <li><strong>موردو ومصنعو الأجهزة الطبية والصناعية:</strong> وكلاء Siemens Healthineers، GE Healthcare، Philips، Schneider Electric (تكامل شهادات المعايرة وتحديثات الـ BOM).</li>
+            <li><strong>مزودو السحابة والبنية التحتية:</strong> AWS و Local Cloud Hosting للبيانات الصحية الحساسة المتوافقة مع معايير السيادة الرقمية.</li>
+            <li><strong>شركات ومستودعات قطع الغيار المعتمدة:</strong> موردو الفلاتر والقطع الدقيقة للتوريد التلقائي عند وصول رصيد الأمان للحد الأدنى (Reorder Point).</li>
+            <li><strong>هيئات ولجان الاعتماد والجودة:</strong> خبراء واستشاريو معايير HCAC ومجلس اعتماد المؤسسات الصحية و JCI و ISO 55000.</li>
+            <li><strong>شركات الصيانة التخصصية والمقاولون:</strong> مقاولو صيانة المصاعد، التكييف المركزي HVAC، ومولدات الطوارئ للربط الميداني.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 2. KEY ACTIVITIES -->
+      <div class="bmc-cell cell-activities">
+        <div class="cell-header">
+          <div class="cell-title-ar">
+            <span><span class="badge-icon">⚡</span> الأنشطة الرئيسية</span>
+          </div>
+          <div class="cell-title-en">Key Activities</div>
+          <div class="cell-guide">ما هي الأنشطة الحيوية المطلوبة لتقديم عروض القيمة وتشغيل القنوات؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true" id="blockActivities">
+          <ul>
+            <li><strong>تطوير المنصة والذكاء الميداني:</strong> صيانة وتحديث محرك معالجة الصوت (Voice-to-Action)، والربط مع الحساسات وقواعد بيانات PostgreSQL.</li>
+            <li><strong>أتمتة الصيانة والامتثال الرقابي:</strong> برمجة جداول الصيانة الوقائية (PM) واحتساب مؤشرات الجاهزية MTTR / MTBF.</li>
+            <li><strong>التهيئة والربط الميداني للمنشآت:</strong> ترميز الأصول وتثبيت ملصقات الـ QR المقاومة للظروف الصناعية (60x40mm) في الموقع.</li>
+            <li><strong>تدريب الكوادر الفنية والطبية:</strong> ورش عمل للمهندسين وفنيي الصيانة والممرضين على تقديم البلاغات في 15 ثانية.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 3. KEY RESOURCES -->
+      <div class="bmc-cell cell-resources">
+        <div class="cell-header">
+          <div class="cell-title-ar">
+            <span><span class="badge-icon">🧱</span> الموارد الرئيسية</span>
+          </div>
+          <div class="cell-title-en">Key Resources</div>
+          <div class="cell-guide">ما هي الأصول المادية والبرمجية والبشرية التي يتطلبها نموذج العمل؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true" id="blockResources">
+          <ul>
+            <li><strong>الملكية الفكرية والكود المصدري:</strong> خوارزميات العمليات الذرية ($transaction) لحسم المستودع ومحرك تتبع حياة الأصل الكامل (Life File).</li>
+            <li><strong>فريق المهندسين والخبراء:</strong> مطورو Full-Stack، مهندسو أجهزة طبية (Biomedical Engineers)، وخبراء صيانة ميكانيكية وكهربائية.</li>
+            <li><strong>قاعدة المعرفة والأدلة الفنية:</strong> مكتبة مدمجة لقوائم التحقق (Checklists) المطابقة لمعايير HCAC و JCI.</li>
+            <li><strong>البنية التحتية البرمجية:</strong> خوادم موثوقة ذات استجابة أقل من 2ms وقواعد بيانات آمنة ونسخ احتياطي فوري JSON.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 4. VALUE PROPOSITIONS -->
+      <div class="bmc-cell cell-value">
+        <div class="cell-header">
+          <div class="cell-title-ar">
+            <span><span class="badge-icon">💎</span> عروض القيمة الفريدة</span>
+          </div>
+          <div class="cell-title-en">Value Propositions</div>
+          <div class="cell-guide">ما القيمة الملموسة التي نقدمها؟ وما المشكلات الحقيقية التي نحلها للمستشفيات والمصانع؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true" id="blockValue">
+          <ul>
+            <li><strong>تقليص وقت توقف الأجهزة بنسبة تصل إلى 45%:</strong> تحويل البلاغات من أوراق واتصالات مشتتة إلى مسح QR واستجابة خلال ثوانٍ.</li>
+            <li><strong>بلاغ عطل ميداني ذكي في 15 ثانية:</strong> دعم الصوت والصورة المباشرة عبر الجوال دون كتابة معقدة من قبل التمريض والمشغلين.</li>
+            <li><strong>جاهزية تامة لاعتماد HCAC / JCI / ISO 55000:</strong> استخراج شهادات التدقيق وسجلات المعايرة بنقرة زر وبنسبة امتثال موثقة تفوق 96%.</li>
+            <li><strong>حماية مالية ومنع هدر المستودعات:</strong> حسم آلي لقطع الغيار وتصنيف اقتصادي ABC مع ميزة الجرد السريع الفوري ومنع العجز.</li>
+            <li><strong>سجل حياة الأصول التاريخي الشامل (Life File):</strong> حفظ كافة الأعطال والصيانات والمعايرات وقطع الـ BOM لتقييم الجدوى الاقتصادية للأصل.</li>
+            <li><strong>مرونة التشغيل والسيادة على البيانات:</strong> دعم النشر السحابي (Cloud) أو النشر الداخلي الكامل (On-Premises) للمستشفيات ذات الخصوصية العالية.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 5. CUSTOMER RELATIONSHIPS -->
+      <div class="bmc-cell cell-relationships">
+        <div class="cell-header">
+          <div class="cell-title-ar">
+            <span><span class="badge-icon">💬</span> العلاقات مع العملاء</span>
+          </div>
+          <div class="cell-title-en">Customer Relationships</div>
+          <div class="cell-guide">كيف نستقطب العملاء ونحافظ عليهم ونطور علاقات استراتيجية طويلة الأمد؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true" id="blockRelationships">
+          <ul>
+            <li><strong>شريك صيانة استراتيجي مخصص (Dedicated CSM):</strong> مهندس دعم مخصص لكل مستشفى أو منشأة كبرى لضمان نجاح التشغيل.</li>
+            <li><strong>اتفاقيات مستوى الخدمة الصارمة (SLA 99.9%):</strong> استجابة طوارئ على مدار الساعة (24/7) للأعطال الحرجة بالأقسام الطبية الحيوية.</li>
+            <li><strong>جلسات مراجعة ربع سنوية (QBR):</strong> تقديم تقارير تحليلية ومؤشرات MTTR وتوفير التكاليف لقيادات الإدارة العليا.</li>
+            <li><strong>التدريب والاعتماد المستمر:</strong> منصة تدريب تفاعلية للفنيين الجدد وشهادات استخدام معتمدة.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 6. CHANNELS -->
+      <div class="bmc-cell cell-channels">
+        <div class="cell-header">
+          <div class="cell-title-ar">
+            <span><span class="badge-icon">🌐</span> قنوات الوصول والتوزيع</span>
+          </div>
+          <div class="cell-title-en">Channels</div>
+          <div class="cell-guide">كيف نصل إلى المستشفيات والمصانع؟ وكيف نسلم النظام ونقدم الدعم؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true" id="blockChannels">
+          <ul>
+            <li><strong>المبيعات المباشرة للمؤسسات (B2B Enterprise Direct):</strong> عروض حية (Live Demos) مخصصة لمديري المرافق والهندسة الطبية بالمستشفيات.</li>
+            <li><strong>المؤتمرات والمعارض المتخصصة:</strong> المشاركة في ملتقيات الصحة العالمية (Global Health)، معارض الأجهزة الطبية، ومؤتمرات الصيانة والتشغيل.</li>
+            <li><strong>الشراكات مع شركات إدارة المرافق (Facility Management):</strong> تزويد شركات التشغيل الكبرى بالنظام لإدارة عقودهم المتعددة.</li>
+            <li><strong>بوابة الويب وتطبيق الجوال:</strong> إتاحة الوصول المباشر عبر السحابة وتطبيق الويب المتجاوب (PWA).</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 7. CUSTOMER SEGMENTS -->
+      <div class="bmc-cell cell-segments">
+        <div class="cell-header">
+          <div class="cell-title-ar">
+            <span><span class="badge-icon">🎯</span> شرائح العملاء المستهدفة</span>
+          </div>
+          <div class="cell-title-en">Customer Segments</div>
+          <div class="cell-guide">لمن نبني هذا النظام؟ ومن هم العملاء الأكثر أهمية ودفعاً للقيمة؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true" id="blockSegments">
+          <ul>
+            <li><strong>المستشفيات والمجمعات الطبية الكبرى:</strong>
+              <br>المستشفيات الساعية للاعتماد (HCAC / JCI)، التي تمتلك أجهزة باهظة (MRI، أشعة، حضانات) وتتطلب دقة معايرة وصفر توقف.
+            </li>
+            <li><strong>المصانع والمنشآت الإنتاجية الثقيلة:</strong>
+              <br>مصانع الأغذية والأدوية والكيماويات التي تخضع لمعايير الجودة الصارمة (GMP و ISO 55000) وتعتمد على خطوط إنتاج مستمرة.
+            </li>
+            <li><strong>شركات تشغيل وصيانة المرافق (O&M Contractors):</strong>
+              <br>المقاولون الذين يديرون عقود صيانة متعددة للمباني الحكومية، الجامعات، والأبراج التجارية.
+            </li>
+            <li><strong>مراكز الرعاية الصحية التخصصية والمختبرات:</strong>
+              <br>مراكز الأشعة والتحاليل الطبية التي تحتاج إلى ضبط جداول الصيانة الوقائية ومعايرة الحساسات.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 8. COST STRUCTURE -->
+      <div class="bmc-cell cell-costs">
+        <div class="cell-header">
+          <div class="cell-title-ar">
+            <span><span class="badge-icon">📉</span> هيكل التكاليف (Cost Structure)</span>
+          </div>
+          <div class="cell-title-en">Cost Structure</div>
+          <div class="cell-guide">ما هي التكاليف الأكثر أهمية في تشغيل المشروع؟ وهل هو موجه بالقيمة أم التكلفة؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true" id="blockCosts">
+          <ul>
+            <li><strong>تكاليف البحث والتطوير الهندسي (R&D):</strong> رواتب مطوري البرمجيات، مهندسي ضمان الجودة (QA)، وخبراء الهندسية الطبية الحيوية.</li>
+            <li><strong>البنية التحتية والسيرفرات السحابية:</strong> تكاليف استضافة AWS/Local Servers، خوادم قواعد البيانات الآمنة، والنسخ الاحتياطي وحماية البيانات.</li>
+            <li><strong>المبيعات والتسويق واستقطاب العملاء (CAC):</strong> تكاليف الفريق الميداني، المشاركة في المعارض الطبية والصناعية، والمطبوعات والمواد الترويجية.</li>
+            <li><strong>الدعم الفني والتدريب الميداني:</strong> تكاليف فرق الإعداد والتدريب الموقعي وتجهيز ملصقات الـ QR المعدنية والأجهزة اللوحية الميدانية.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 9. REVENUE STREAMS -->
+      <div class="bmc-cell cell-revenues">
+        <div class="cell-header">
+          <div class="cell-title-ar">
+            <span><span class="badge-icon">💰</span> مصادر الإيرادات (Revenue Streams)</span>
+          </div>
+          <div class="cell-title-en">Revenue Streams</div>
+          <div class="cell-guide">ما القيمة التي يرغب العملاء حقاً في دفع مقابلها؟ وما هي آليات وتدفقات التسعير؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true" id="blockRevenues">
+          <ul>
+            <li><strong>الاشتراكات السحابية الدورية (SaaS Subscriptions):</strong>
+              <br>• باقة المنشآت الصغيرة/المتوسطة: $199 - $349 شهرياً.
+              <br>• باقة المستشفيات والمصانع الكبرى: $599 - $1,200 شهرياً (حسب عدد الأصول والمستخدمين).
+            </li>
+            <li><strong>التراخيص الدائمة للمؤسسات الكبرى (On-Premise Licenses):</strong> ترخيص شراء دائم للمستشفيات العسكرية والحكومية ($15,000 - $35,000) مع عقد صيانة سنوي 20%.</li>
+            <li><strong>رسوم الإعداد والتجهيز الموقعي (Onboarding & Tagging):</strong> تهيئة وتثبيت باركود الأجهزة وإدخال بيانات الأصول والمستودعات ($2,000 - $5,000 لكل منشأة).</li>
+            <li><strong>عقود الدعم المتميز والامتثال الرقابي (Premium SLA & Audit Readiness):</strong> اشتراك سنوي لمرافقة المنشأة أثناء جولات تفتيش لجان الاعتماد وتوليد التقارير المعتمدة.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Save to local storage automatically so the user never loses their custom edits
+    const fields = ['designedFor', 'designedBy', 'canvasDate', 'canvasVersion', 
+                    'blockPartners', 'blockActivities', 'blockResources', 
+                    'blockValue', 'blockRelationships', 'blockChannels', 
+                    'blockSegments', 'blockCosts', 'blockRevenues'];
+
+    // Load saved data if present
+    window.addEventListener('DOMContentLoaded', () => {
+      fields.forEach(fieldId => {
+        const saved = localStorage.getItem('nexcmms_bmc_' + fieldId);
+        if (saved) {
+          const el = document.getElementById(fieldId);
+          if (el) {
+            if (el.tagName === 'INPUT') el.value = saved;
+            else el.innerHTML = saved;
+          }
+        }
+      });
+    });
+
+    // Auto-save on edit
+    fields.forEach(fieldId => {
+      const el = document.getElementById(fieldId);
+      if (el) {
+        el.addEventListener('input', () => {
+          const val = (el.tagName === 'INPUT') ? el.value : el.innerHTML;
+          localStorage.setItem('nexcmms_bmc_' + fieldId, val);
+        });
+      }
+    });
+
+    function resetDefaults() {
+      if (confirm('هل تريد استعادة البيانات الأصلية للنموذج؟ سيتم مسح التعديلات المحلية غير المحفوظة.')) {
+        fields.forEach(f => localStorage.removeItem('nexcmms_bmc_' + f));
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

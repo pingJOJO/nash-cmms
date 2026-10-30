@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>مخطط نموذج العمل التجاري — فارغ للطباعة والتعبئة (Blank Business Model Canvas)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+
+    @page {
+      size: A4 landscape;
+      margin: 8mm 10mm 8mm 10mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      color: #0f172a;
+      font-size: 8.5pt;
+      line-height: 1.35;
+    }
+
+    .toolbar {
+      background: #0f172a;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .toolbar-title {
+      font-size: 11pt;
+      font-weight: 700;
+    }
+
+    .btn {
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 9pt;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .canvas-container {
+      max-width: 1380px;
+      margin: 10px auto;
+      background: white;
+      padding: 12px;
+    }
+
+    .canvas-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+
+    .canvas-title-group h1 {
+      margin: 0;
+      font-size: 20pt;
+      font-weight: 900;
+      color: #0f172a;
+    }
+
+    .canvas-title-group .sub {
+      font-size: 9.5pt;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .header-meta-grid {
+      display: flex;
+      gap: 14px;
+    }
+
+    .meta-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 4px 10px;
+      min-width: 130px;
+    }
+
+    .meta-box label {
+      display: block;
+      font-size: 7pt;
+      color: #64748b;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .meta-box input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: #0f172a;
+      outline: none;
+      padding: 0;
+    }
+
+    .bmc-grid {
+      display: grid;
+      grid-template-columns: 2fr 2fr 2.2fr 2fr 2fr;
+      grid-template-rows: 240px 240px 180px;
+      border: 1.5px solid #0f172a;
+      background: #cbd5e1;
+      gap: 1.5px;
+    }
+
+    .bmc-cell {
+      background: #ffffff;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .cell-partners { grid-column: 1; grid-row: 1 / span 2; }
+    .cell-activities { grid-column: 2; grid-row: 1; }
+    .cell-resources { grid-column: 2; grid-row: 2; }
+    .cell-value { grid-column: 3; grid-row: 1 / span 2; }
+    .cell-relationships { grid-column: 4; grid-row: 1; }
+    .cell-channels { grid-column: 4; grid-row: 2; }
+    .cell-segments { grid-column: 5; grid-row: 1 / span 2; }
+    .cell-costs { grid-column: 1 / span 3; grid-row: 3; }
+    .cell-revenues { grid-column: 4 / span 2; grid-row: 3; }
+
+    .cell-header {
+      margin-bottom: 8px;
+      border-bottom: 1px dashed #cbd5e1;
+      padding-bottom: 4px;
+    }
+
+    .cell-title-ar {
+      font-size: 9.5pt;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .cell-title-en {
+      font-size: 7.5pt;
+      font-weight: 600;
+      color: #64748b;
+      direction: ltr;
+      text-align: left;
+    }
+
+    .cell-guide {
+      font-size: 6.8pt;
+      color: #94a3b8;
+      line-height: 1.25;
+      margin-top: 2px;
+    }
+
+    .cell-content {
+      flex: 1;
+      outline: none;
+      font-size: 8pt;
+      color: #1e293b;
+      min-height: 80px;
+    }
+
+    @media print {
+      .toolbar { display: none !important; }
+      body { background: white; }
+      .canvas-container { margin: 0; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div class="toolbar-title">نموذج مخطط العمل التجاري الفارغ (Blank BMC) — قابل للتعديل والطباعة المباشرة</div>
+    <button class="btn" onclick="window.print()">🖨️ طباعة النموذج فارغاً</button>
+  </div>
+
+  <div class="canvas-container">
+    <div class="canvas-header">
+      <div class="canvas-title-group">
+        <h1>Business Model Canvas <span>| مخطط نموذج العمل التجاري</span></h1>
+        <div class="sub">نموذج التخطيط الاستراتيجي للمؤسسات والشركات الناشئة</div>
+      </div>
+      <div class="header-meta-grid">
+        <div class="meta-box">
+          <label>Designed for / صُمم لـ:</label>
+          <input type="text" placeholder="اسم المشروع / الشركة">
+        </div>
+        <div class="meta-box">
+          <label>Designed by / بواسطة:</label>
+          <input type="text" placeholder="اسم المصمم / الفريق">
+        </div>
+        <div class="meta-box">
+          <label>Date / التاريخ:</label>
+          <input type="text" value="30 أكتوبر 2026">
+        </div>
+        <div class="meta-box" style="min-width: 80px;">
+          <label>Version / الإصدار:</label>
+          <input type="text" value="1.0">
+        </div>
+      </div>
+    </div>
+
+    <div class="bmc-grid">
+      <div class="bmc-cell cell-partners">
+        <div class="cell-header">
+          <div class="cell-title-ar">الشركاء الرئيسيون</div>
+          <div class="cell-title-en">Key Partners</div>
+          <div class="cell-guide">من هم شركاؤنا وموردونا الرئيسيون؟ ما هي الموارد التي نحصل عليها منهم؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true"></div>
+      </div>
+
+      <div class="bmc-cell cell-activities">
+        <div class="cell-header">
+          <div class="cell-title-ar">الأنشطة الرئيسية</div>
+          <div class="cell-title-en">Key Activities</div>
+          <div class="cell-guide">ما هي الأنشطة الأساسية التي تتطلبها عروض القيمة وقنوات التوزيع؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true"></div>
+      </div>
+
+      <div class="bmc-cell cell-resources">
+        <div class="cell-header">
+          <div class="cell-title-ar">الموارد الرئيسية</div>
+          <div class="cell-title-en">Key Resources</div>
+          <div class="cell-guide">ما هي الموارد المادية والبشرية والفكرية والمالية المطلوبة؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true"></div>
+      </div>
+
+      <div class="bmc-cell cell-value">
+        <div class="cell-header">
+          <div class="cell-title-ar">عروض القيمة المقترحة</div>
+          <div class="cell-title-en">Value Propositions</div>
+          <div class="cell-guide">ما هي القيمة الفريدة التي نقدمها للعميل؟ وأي مشكلات حقيقية نساعد في حلها؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true"></div>
+      </div>
+
+      <div class="bmc-cell cell-relationships">
+        <div class="cell-header">
+          <div class="cell-title-ar">العلاقات مع العملاء</div>
+          <div class="cell-title-en">Customer Relationships</div>
+          <div class="cell-guide">ما نوع العلاقة التي يتوقعها كل قطاع من العملاء؟ وكيف نحافظ عليها؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true"></div>
+      </div>
+
+      <div class="bmc-cell cell-channels">
+        <div class="cell-header">
+          <div class="cell-title-ar">قنوات التوزيع والتواصل</div>
+          <div class="cell-title-en">Channels</div>
+          <div class="cell-guide">عبر أي قنوات نصل لشرائح عملائنا؟ وكيف ندمجها في روتين أعمالهم؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true"></div>
+      </div>
+
+      <div class="bmc-cell cell-segments">
+        <div class="cell-header">
+          <div class="cell-title-ar">شرائح العملاء</div>
+          <div class="cell-title-en">Customer Segments</div>
+          <div class="cell-guide">لمن نخلق القيمة الحقيقية؟ ومن هم عملاؤنا الأكثر أهمية وإقبالاً؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true"></div>
+      </div>
+
+      <div class="bmc-cell cell-costs">
+        <div class="cell-header">
+          <div class="cell-title-ar">هيكل التكاليف (Cost Structure)</div>
+          <div class="cell-title-en">Cost Structure</div>
+          <div class="cell-guide">ما هي التكاليف الأكثر أهمية في نموذج أعمالنا؟ وما هي الأنشطة والموارد الأكثر استهلاكاً؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true"></div>
+      </div>
+
+      <div class="bmc-cell cell-revenues">
+        <div class="cell-header">
+          <div class="cell-title-ar">مصادر الإيرادات (Revenue Streams)</div>
+          <div class="cell-title-en">Revenue Streams</div>
+          <div class="cell-guide">ما هي القيمة التي يدفع العملاء مقابلها حقاً؟ وكيف يفضلون الدفع (اشتراكات، تراخيص، خدمات)؟</div>
+        </div>
+        <div class="cell-content" contenteditable="true"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
