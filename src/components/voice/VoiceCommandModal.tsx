@@ -14,9 +14,9 @@ import {
   Volume2,
   FlaskConical,
   Play,
-  Radio,
-  HelpCircle,
-  RotateCcw
+  RotateCcw,
+  Square,
+  Power
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { VoiceProcessResponse } from '../../types/cmms';
@@ -34,6 +34,7 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
 }) => {
   const [isListening, setIsListening] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [transcript, setTranscript] = useState('');
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -44,11 +45,13 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
   const [volumeLevel, setVolumeLevel] = useState<number>(0);
 
   const recognitionRef = useRef<any>(null);
+  const userWantsListeningRef = useRef(false);
+  const accumulatedTranscriptRef = useRef('');
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animFrameRef = useRef<number | null>(null);
-  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const resultCardRef = useRef<HTMLDivElement | null>(null);
 
   // Stop media stream and audio context
@@ -68,14 +71,15 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
     setVolumeLevel(0);
   };
 
-  // Cleanup on unmount or close
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
+      userWantsListeningRef.current = false;
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
       cleanupAudio();
       if (recognitionRef.current) {
         try { recognitionRef.current.abort(); } catch (_) {}
       }
-      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     };
   }, []);
 
@@ -93,7 +97,6 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
     try {
       const response = await api.processVoice(text, language);
       setResult(response);
-      // Auto-scroll to result card
       setTimeout(() => {
         resultCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 100);
@@ -180,32 +183,50 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
     }
   };
 
-  // Toggle real microphone recording with full permission request & fallback
+  // Toggle Recording like a hardware switch (ON / OFF)
   const toggleListening = async () => {
-    // If currently listening, stop it
+    // 1. If currently ON -> User toggles OFF (Stop & Submit)
     if (isListening) {
+      userWantsListeningRef.current = false;
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = null;
+      }
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch (_) {}
       }
       cleanupAudio();
       setIsListening(false);
+
+      // Auto-process the accumulated transcript
+      const finalText = accumulatedTranscriptRef.current.trim() || transcript.trim();
+      if (finalText) {
+        handleProcess(finalText);
+      }
       return;
     }
 
+    // 2. If currently OFF -> User toggles ON (Start Continuous Recording)
+    userWantsListeningRef.current = true;
     setMicError(null);
     setTranscript('');
+    accumulatedTranscriptRef.current = '';
     setResult(null);
     setExecutionMessage(null);
+    setRecordingSeconds(0);
 
-    // 1. Explicitly request microphone stream from browser to trigger permission prompt
-    let hasMediaStream = false;
+    // Start timer counter
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    recordingTimerRef.current = setInterval(() => {
+      setRecordingSeconds(s => s + 1);
+    }, 1000);
+
+    // Request audio stream for live visualization and permission
     try {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaStreamRef.current = stream;
-        hasMediaStream = true;
 
-        // Hook up AudioContext for reactive wave meter
         try {
           const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
           if (AudioContextClass) {
@@ -214,7 +235,7 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
             const source = audioCtx.createMediaStreamSource(stream);
             const analyser = audioCtx.createAnalyser();
             analyser.fftSize = 64;
-            analyser.smoothingTimeConstant = 0.5;
+            analyser.smoothingTimeConstant = 0.4;
             source.connect(analyser);
 
             const dataArray = new Uint8Array(analyser.frequencyBinCount);
@@ -230,26 +251,30 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
             analyserRef.current = analyser;
             animFrameRef.current = requestAnimationFrame(updateVolume);
           }
-        } catch (audioErr) {
-          console.warn('AudioContext visualization failed:', audioErr);
-        }
+        } catch (_) {}
       }
     } catch (err: any) {
-      console.warn('getUserMedia permission error:', err);
+      userWantsListeningRef.current = false;
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+      console.warn('getUserMedia error:', err);
       const isDenied = err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError';
       setMicError(
         isDenied 
           ? (language === 'ar' 
-              ? 'تم حظر الميكروفون من المتصفح. انقر على أيقونة الإعدادات/القفل بجانب شريط العنوان واختر "السماح بالميكروفون" (Allow)، أو اضغط على الأوامر السريعة أدناه لتجربة الميزة فوراً.' 
-              : 'Microphone permission blocked. Please allow mic access in your browser address bar, or click sample commands below.')
+              ? 'تم حظر الميكروفون من المتصفح. انقر على أيقونة الإعدادات/القفل بجانب شريط العنوان واختر "السماح بالميكروفون" (Allow).' 
+              : 'Microphone permission blocked. Please allow mic access in your browser settings.')
           : (language === 'ar' 
               ? 'لم يتم العثور على ميكروفون متصل بجهازك. يمكنك استخدام الأوامر السريعة أدناه لتجربة الميزة.' 
-              : 'No microphone hardware found. You can use the quick sample commands below.')
+              : 'No microphone hardware found. You can use quick sample commands below.')
       );
       return;
     }
 
-    // 2. Instantiate and start Web Speech Recognition
+    // Start Web Speech Recognition with CONTINUOUS mode (no auto-cutoff!)
+    startSpeechRecognitionSession();
+  };
+
+  const startSpeechRecognitionSession = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setMicError(
@@ -257,17 +282,18 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
           ? 'المتصفح الحالي لا يدعم محرك Web Speech API مباشرة. يرجى تجربة الأوامر الصوتية السريعة أدناه.' 
           : 'Browser does not support Web Speech API. Please use quick sample buttons below.'
       );
+      userWantsListeningRef.current = false;
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
       cleanupAudio();
       return;
     }
 
     try {
       const recognition = new SpeechRecognition();
-      recognition.continuous = false;
+      // Continuous mode ensures recording does NOT stop on pauses!
+      recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = language === 'ar' ? 'ar-SA' : 'en-US';
-
-      let lastRecognized = '';
 
       recognition.onstart = () => {
         setIsListening(true);
@@ -275,61 +301,62 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
       };
 
       recognition.onresult = (event: any) => {
-        let currentText = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          currentText += event.results[i][0].transcript;
-        }
-        if (currentText) {
-          lastRecognized = currentText;
-          setTranscript(currentText);
+        let interimText = '';
+        let finalizedText = '';
 
-          // Reset silence timer to auto-submit after 1.8 seconds of silence
-          if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-          silenceTimerRef.current = setTimeout(() => {
-            if (recognitionRef.current) {
-              try { recognitionRef.current.stop(); } catch (_) {}
-            }
-          }, 1800);
+        for (let i = 0; i < event.results.length; ++i) {
+          const phrase = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalizedText += (finalizedText ? ' ' : '') + phrase;
+          } else {
+            interimText += (interimText ? ' ' : '') + phrase;
+          }
         }
+
+        accumulatedTranscriptRef.current = finalizedText;
+        const currentFull = (finalizedText + (interimText ? ' ' + interimText : '')).trim();
+        setTranscript(currentFull);
       };
 
       recognition.onerror = (event: any) => {
         console.warn('SpeechRecognition error:', event.error);
-        setIsListening(false);
-        cleanupAudio();
-
-        if (event.error === 'not-allowed') {
-          setMicError(
-            language === 'ar'
-              ? 'صلاحية الميكروفون محظورة من المتصفح أو نظام التشغيل. يرجى السماح بالميكروفون في إعدادات الخصوصية.'
-              : 'Microphone permission denied by browser or OS.'
-          );
-        } else if (event.error === 'network') {
+        if (event.error === 'network') {
           setMicError(
             language === 'ar'
               ? 'تعتمد ميزة التعرف الصوتي في المتصفح على خوادم Google/Microsoft السحابية، وقد تعذر الاتصال بها بسبب إعدادات المتصفح أو الشبكة. يمكنك استخدام متصفح Chrome، أو الضغط على "تجربة محاكاة صوتية فورية" لتشغيل الميزة تلقائياً.'
-              : 'Browser speech recognition requires a connection to cloud speech servers (blocked by network/browser settings). Please use Google Chrome or click "Run Instant Voice Simulation".'
+              : 'Browser speech recognition requires a cloud connection.'
           );
+          userWantsListeningRef.current = false;
+          if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+          setIsListening(false);
+          cleanupAudio();
+        } else if (event.error === 'not-allowed') {
+          setMicError(
+            language === 'ar'
+              ? 'صلاحية الميكروفون محظورة من المتصفح أو نظام التشغيل.'
+              : 'Microphone permission denied.'
+          );
+          userWantsListeningRef.current = false;
+          if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+          setIsListening(false);
+          cleanupAudio();
         } else if (event.error === 'no-speech') {
-          setMicError(
-            language === 'ar'
-              ? 'لم يتم سماع أي صوت. يرجى التحدث بوضوح قرب الميكروفون والمحاولة ثانية.'
-              : 'No speech detected. Please speak closer to your mic and retry.'
-          );
-        } else if (event.error !== 'aborted') {
-          setMicError(
-            language === 'ar'
-              ? `تنبيه صوتي (${event.error}). يمكنك استخدام الأوامر السريعة أدناه.`
-              : `Voice recognition alert (${event.error}).`
-          );
+          // If no speech detected in this brief window, DO NOT STOP! Keep listening.
+          console.log('No speech detected in segment, keeping session open...');
         }
       };
 
       recognition.onend = () => {
-        setIsListening(false);
-        cleanupAudio();
-        if (lastRecognized.trim()) {
-          handleProcess(lastRecognized.trim());
+        // If the user still has the switch ON, automatically restart so it never prematurely stops!
+        if (userWantsListeningRef.current) {
+          try {
+            recognition.start();
+          } catch (err) {
+            console.warn('Recognition restart error:', err);
+          }
+        } else {
+          setIsListening(false);
+          cleanupAudio();
         }
       };
 
@@ -337,23 +364,30 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
       recognition.start();
     } catch (err: any) {
       console.warn('Speech recognition start failed:', err);
+      userWantsListeningRef.current = false;
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
       setIsListening(false);
       cleanupAudio();
       setMicError(err.message || 'فشل تشغيل محرك الصوت');
     }
   };
 
-  // Simulated Voice Input (Demo Mode that works anywhere, even without mic!)
+  // Simulated Voice Input (Demo mode)
   const runVoiceSimulation = (sampleText: string) => {
-    setIsListening(false);
+    userWantsListeningRef.current = false;
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
     cleanupAudio();
     setIsSimulating(true);
     setMicError(null);
     setTranscript('');
     setResult(null);
     setExecutionMessage(null);
+    setRecordingSeconds(0);
 
-    // Typing effect simulating real-time speech transcription
+    const timer = setInterval(() => {
+      setRecordingSeconds(s => s + 1);
+    }, 1000);
+
     let index = 0;
     const interval = setInterval(() => {
       index += 2;
@@ -362,10 +396,10 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
 
       if (index >= sampleText.length) {
         clearInterval(interval);
+        clearInterval(timer);
         setTranscript(sampleText);
         setIsSimulating(false);
         setVolumeLevel(0);
-        // Trigger AI processing
         handleProcess(sampleText);
       }
     }, 45);
@@ -405,8 +439,8 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
                 {language === 'ar' 
-                  ? 'ميزة تجريبية ذكية: سجّل بلاغاً أو أغلق أمر عمل أو حدّث المخزون بصوتك في 15 ثانية' 
-                  : 'Experimental smart feature: Report faults, complete orders or adjust stock by voice in 15s'}
+                  ? 'مفتاح تسجيل يدوي كامل: أنت من يشغّل وأنت من يوقف التسجيل متى شئت' 
+                  : 'Full manual switch control: Start and stop recording at your own pace'}
               </p>
             </div>
           </div>
@@ -467,64 +501,95 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
             </div>
           )}
 
-          {/* Mic Interaction Hero */}
-          <div className="flex flex-col items-center justify-center py-6 bg-slate-950/50 rounded-2xl border border-slate-800/80 relative overflow-hidden">
-            {/* Visual Pulse Waves when Listening */}
-            {(isListening || isSimulating) && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <span 
-                  className="absolute rounded-full bg-rose-500/20 animate-ping transition-all"
-                  style={{ width: `${100 + volumeLevel * 1.5}px`, height: `${100 + volumeLevel * 1.5}px` }}
-                />
-                <span 
-                  className="absolute rounded-full bg-rose-500/30 animate-pulse transition-all"
-                  style={{ width: `${80 + volumeLevel}px`, height: `${80 + volumeLevel}px` }}
-                />
-              </div>
-            )}
+          {/* ==================================================== */}
+          {/* HERO: INDUSTRIAL TOGGLE SWITCH CONTROL (MANUAL ON/OFF) */}
+          {/* ==================================================== */}
+          <div className="flex flex-col items-center justify-center p-6 bg-slate-950/70 rounded-2xl border border-slate-800/90 relative overflow-hidden space-y-4 shadow-inner">
+            
+            {/* Status Pill with Timer */}
+            <div className="flex items-center gap-2">
+              <span className={`px-3.5 py-1 rounded-full text-xs font-bold flex items-center gap-2 transition-all ${
+                isListening || isSimulating
+                  ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-xs shadow-rose-500/20'
+                  : 'bg-slate-800/90 text-slate-400 border border-slate-700/80'
+              }`}>
+                <span className={`w-2.5 h-2.5 rounded-full ${isListening || isSimulating ? 'bg-rose-500 animate-ping' : 'bg-slate-500'}`} />
+                <span>
+                  {isListening || isSimulating 
+                    ? (language === 'ar' ? '🔴 التسجيل نشط (ON) — تحدّث بحرية' : '🔴 Recording is ON — Speak freely')
+                    : (language === 'ar' ? '⚪ التسجيل متوقف (OFF)' : '⚪ Recording is OFF')}
+                </span>
+                {(isListening || isSimulating) && (
+                  <span className="font-mono text-[11px] bg-rose-950/90 px-2 py-0.5 rounded text-rose-200 font-bold border border-rose-500/30">
+                    {Math.floor(recordingSeconds / 60)}:{(recordingSeconds % 60).toString().padStart(2, '0')}
+                  </span>
+                )}
+              </span>
+            </div>
 
+            {/* Hardware-Style Toggle Switch Button */}
             <button
               type="button"
-              id="voice-mic-trigger"
-              data-testid="voice-mic-button"
+              id="voice-switch-trigger"
+              data-testid="voice-switch-button"
               onClick={toggleListening}
-              className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 cursor-pointer ${
+              className={`relative group w-52 h-16 rounded-full p-1.5 flex items-center transition-all duration-300 cursor-pointer shadow-2xl ${
                 isListening || isSimulating
-                  ? 'bg-rose-600 hover:bg-rose-500 text-white scale-110 shadow-rose-600/40 ring-4 ring-rose-500/30' 
-                  : 'bg-gradient-to-tr from-sky-600 to-indigo-600 hover:scale-105 text-white shadow-indigo-600/30 hover:shadow-sky-500/40'
+                  ? 'bg-gradient-to-r from-rose-600 to-red-600 justify-end ring-4 ring-rose-500/30 shadow-rose-600/40'
+                  : 'bg-slate-800 hover:bg-slate-750 justify-start border border-slate-700/80 shadow-slate-950'
               }`}
             >
-              {isListening || isSimulating ? (
-                <MicOff className="w-8 h-8 animate-bounce" />
-              ) : (
-                <Mic className="w-8 h-8" />
-              )}
+              {/* Inside Track Label */}
+              <span className={`absolute inset-0 flex items-center text-xs font-black tracking-wider select-none pointer-events-none transition-all ${
+                isListening || isSimulating 
+                  ? 'justify-start text-white/95 pr-4 pl-14' 
+                  : 'justify-end text-slate-300 pl-4 pr-14'
+              }`}>
+                {isListening || isSimulating
+                  ? (language === 'ar' ? 'إيقاف التسجيل (OFF)' : 'STOP (OFF)')
+                  : (language === 'ar' ? 'بدء التسجيل (ON)' : 'START (ON)')}
+              </span>
+
+              {/* The Sliding Switch Knob */}
+              <div className={`relative z-10 w-13 h-13 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl ${
+                isListening || isSimulating
+                  ? 'bg-white text-rose-600 scale-105 shadow-rose-900/40'
+                  : 'bg-gradient-to-tr from-sky-500 to-indigo-600 text-white group-hover:scale-105 shadow-sky-900/40'
+              }`}>
+                {isListening || isSimulating ? (
+                  <Square className="w-5 h-5 fill-current animate-pulse" />
+                ) : (
+                  <Mic className="w-6 h-6" />
+                )}
+              </div>
             </button>
 
-            {/* Reactive Wave Bars */}
-            {(isListening || isSimulating) ? (
-              <div className="mt-4 flex items-center gap-1 h-6">
-                {[40, 70, 95, 60, 85, 50, 90, 65, 45].map((h, i) => (
+            {/* Instructions */}
+            <div className="text-center space-y-1">
+              <p className="text-xs font-semibold text-slate-200">
+                {isListening || isSimulating
+                  ? (language === 'ar' ? 'التسجيل مستمر ولن ينقطع تلقائياً.. اضغط على السويتش لإيقافه وتحليل الأمر' : 'Recording continuously without auto-stop.. click switch to stop & analyze')
+                  : (language === 'ar' ? 'اضغط السويتش لبدء التسجيل، وتحدث براحتك، ثم اضغط لإيقافه' : 'Toggle switch ON to start recording, then toggle OFF when finished')}
+              </p>
+              <p className="text-[11px] text-slate-500">
+                {language === 'ar' ? 'تحكّم يدوي كامل (Manual Switch) — لا يوجد إيقاف مفاجئ أثناء التوقف عن الكلام' : 'Full manual control — no premature pause timeouts'}
+              </p>
+            </div>
+
+            {/* Reactive Wave Bars when recording */}
+            {(isListening || isSimulating) && (
+              <div className="flex items-center gap-1.5 h-6 pt-1">
+                {[35, 65, 95, 55, 85, 45, 90, 70, 40, 80, 60, 95, 50, 75].map((h, i) => (
                   <span
                     key={i}
                     className="w-1 bg-rose-500 rounded-full transition-all duration-150 animate-pulse"
                     style={{ 
-                      height: `${Math.max(6, Math.min(24, (h * (volumeLevel || 30)) / 100))}px`,
-                      animationDelay: `${i * 80}ms`
+                      height: `${Math.max(6, Math.min(24, (h * (volumeLevel || 35)) / 100))}px`,
+                      animationDelay: `${i * 60}ms`
                     }}
                   />
                 ))}
-                <span className="text-xs text-rose-400 font-bold mr-2">
-                  {isSimulating 
-                    ? (language === 'ar' ? 'محاكاة صوتية قيد التسجيل...' : 'Simulated voice dictation...') 
-                    : (language === 'ar' ? 'جارٍ الاستماع... تحدث الآن' : 'Listening... speak clearly')}
-                </span>
               </div>
-            ) : (
-              <span className="mt-4 text-xs font-medium text-slate-400 flex items-center gap-2">
-                <Volume2 className="w-4 h-4 text-sky-400" />
-                {language === 'ar' ? 'اضغط على الميكروفون للتحدث أو اختر أمراً أدناه' : 'Click microphone to speak or pick a preset'}
-              </span>
             )}
           </div>
 
@@ -535,7 +600,10 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
               {transcript && (
                 <button
                   type="button"
-                  onClick={() => setTranscript('')}
+                  onClick={() => {
+                    setTranscript('');
+                    accumulatedTranscriptRef.current = '';
+                  }}
                   className="text-[11px] text-slate-400 hover:text-slate-200 transition cursor-pointer"
                 >
                   {language === 'ar' ? 'مسح النص' : 'Clear'}
@@ -545,18 +613,21 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
             <div className="relative">
               <textarea
                 value={transcript}
-                onChange={(e) => setTranscript(e.target.value)}
+                onChange={(e) => {
+                  setTranscript(e.target.value);
+                  accumulatedTranscriptRef.current = e.target.value;
+                }}
                 placeholder={language === 'ar' 
-                  ? 'مثال: "أنشئ بلاغ عطل لمضخة الأكسجين"، أو تحدث عبر الميكروفون أعلاه...' 
-                  : 'e.g. "Report fault for oxygen pump in ICU", or speak above...'}
+                  ? 'سيتدفق النص الصوتي هنا أثناء حديثك عبر السويتش أعلاه، أو يمكنك الكتابة يدوياً...' 
+                  : 'Voice text will appear here as you speak via the switch above, or type manually...'}
                 rows={3}
                 className="w-full px-4 py-3 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition resize-none"
               />
             </div>
           </div>
 
-          {/* Process Button */}
-          {transcript.trim() && !result && (
+          {/* Manual Process Button (if user typed or edited text) */}
+          {transcript.trim() && !result && !isListening && (
             <button
               type="button"
               disabled={isProcessing}
