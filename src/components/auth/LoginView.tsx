@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth, DEMO_USERS, UserRole } from '../../context/AuthContext';
-import { Shield, Wrench, FileText, ArrowRight, Lock, Mail, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Shield, Wrench, FileText, ArrowRight, Lock, Mail, CheckCircle2, AlertTriangle, Eye, EyeOff, UserCheck } from 'lucide-react';
 
 export const LoginView: React.FC = () => {
   const { login, quickSwitchRole } = useAuth();
   const [email, setEmail] = useState('omar@nexcmms.online');
   const [password, setPassword] = useState('demo1234');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -66,35 +67,41 @@ export const LoginView: React.FC = () => {
             </span>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            {DEMO_USERS.slice(0, 3).map((demo) => {
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {[
+              DEMO_USERS.find(u => u.role === 'ADMINISTRATOR')!,
+              DEMO_USERS.find(u => u.role === 'MANAGER')!,
+              DEMO_USERS.find(u => u.role === 'TECHNICIAN')!,
+              DEMO_USERS.find(u => u.role === 'REQUESTER')!
+            ].filter(Boolean).map((demo) => {
               const isSelected = email.toLowerCase() === demo.email.toLowerCase();
               return (
                 <button
                   key={demo.id}
                   type="button"
                   onClick={() => handleSelectDemo(demo.role, demo.email)}
-                  className={`flex flex-col text-left p-3 rounded-xl border transition-all duration-200 relative group cursor-pointer ${
+                  className={`flex flex-col text-left p-2.5 rounded-xl border transition-all duration-200 relative group cursor-pointer ${
                     isSelected
                       ? 'bg-sky-950/60 border-sky-500 text-white shadow-md shadow-sky-500/10'
                       : 'bg-slate-800/60 border-slate-700/60 text-slate-300 hover:bg-slate-800 hover:border-slate-600'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1.5 w-full">
-                    <div className="p-1.5 rounded-lg bg-slate-700/50 text-sky-400">
-                      {demo.role === 'ADMINISTRATOR' && <Shield className="w-4 h-4" />}
-                      {demo.role === 'TECHNICIAN' && <Wrench className="w-4 h-4" />}
-                      {demo.role === 'REQUESTER' && <FileText className="w-4 h-4" />}
+                    <div className="p-1 rounded-lg bg-slate-700/50 text-sky-400">
+                      {demo.role === 'ADMINISTRATOR' && <Shield className="w-3.5 h-3.5" />}
+                      {demo.role === 'MANAGER' && <UserCheck className="w-3.5 h-3.5" />}
+                      {demo.role === 'TECHNICIAN' && <Wrench className="w-3.5 h-3.5" />}
+                      {demo.role === 'REQUESTER' && <FileText className="w-3.5 h-3.5" />}
                     </div>
                     {isSelected && (
-                      <CheckCircle2 className="w-4 h-4 text-sky-400" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
                     )}
                   </div>
-                  <span className="font-semibold text-xs text-white truncate">
-                    {demo.role === 'ADMINISTRATOR' ? 'Administrator' : demo.role === 'TECHNICIAN' ? 'Field Technician' : 'Operator / Requester'}
+                  <span className="font-semibold text-[11px] text-white truncate">
+                    {demo.role === 'ADMINISTRATOR' ? 'Admin' : demo.role === 'MANAGER' ? 'Manager' : demo.role === 'TECHNICIAN' ? 'Technician' : 'Requester'}
                   </span>
                   <span className="text-[10px] text-slate-400 truncate mt-0.5">
-                    {demo.name}
+                    {demo.name.split(' ')[0]}
                   </span>
                 </button>
               );
@@ -138,16 +145,24 @@ export const LoginView: React.FC = () => {
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
                   if (error) setError('');
                 }}
                 placeholder="••••••••"
-                className="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-10 pr-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 transition-colors"
+                className="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 transition-colors"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                title={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 

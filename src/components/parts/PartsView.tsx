@@ -13,9 +13,13 @@ import {
   MinusCircle,
   Package,
   Boxes,
-  CheckCircle2
+  CheckCircle2,
+  ClipboardCheck,
+  Check,
+  X
 } from 'lucide-react';
 import { Part, ABCClass } from '../../types/cmms';
+import { api } from '../../services/api';
 
 export interface PartSet {
   id: string;
@@ -92,6 +96,12 @@ export const PartsView: React.FC<PartsViewProps> = ({
   const [showMenu, setShowMenu] = useState(false);
   const [partSets, setPartSets] = useState<PartSet[]>(INITIAL_SETS);
   const [issuedSetId, setIssuedSetId] = useState<string | null>(null);
+
+  // Quick Inventory Count session state
+  const [showCountModal, setShowCountModal] = useState(false);
+  const [actualCounts, setActualCounts] = useState<Record<string, number>>({});
+  const [isSyncingCount, setIsSyncingCount] = useState(false);
+  const [countSyncSuccess, setCountSyncSuccess] = useState(false);
 
   // Modal states
   const [showModal, setShowModal] = useState(false);
@@ -203,7 +213,21 @@ export const PartsView: React.FC<PartsViewProps> = ({
           </button>
         </div>
 
-        <div className="pb-2">
+        <div className="pb-2 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              const init: Record<string, number> = {};
+              parts.forEach(p => { init[p.id] = p.quantity; });
+              setActualCounts(init);
+              setShowCountModal(true);
+            }}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
+          >
+            <ClipboardCheck className="w-4 h-4" />
+            <span>الجرد السريع (Quick Stock Count)</span>
+          </button>
+
           <div className="inline-flex rounded-xl shadow-md shadow-sky-500/20">
             <button
               onClick={() => setShowModal(true)}
@@ -622,6 +646,135 @@ export const PartsView: React.FC<PartsViewProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Stock Count Audit Modal */}
+      {showCountModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-2xl w-full space-y-4 shadow-2xl border border-slate-200 max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+                  <ClipboardCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">جلسة الجرد السريع للمستودع (Quick Stock Audit)</h3>
+                  <p className="text-xs text-slate-500">مطابقة الأرصدة الفعلية على الرفوف مع النظام واكتشاف الفروقات آلياً</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCountModal(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-2">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                    <th className="py-2.5 px-3">القطعة (Part)</th>
+                    <th className="py-2.5 px-3">الموقع (Bin)</th>
+                    <th className="py-2.5 px-3">الرصيد بالنظام</th>
+                    <th className="py-2.5 px-3">العدد الفعلي (Physical)</th>
+                    <th className="py-2.5 px-3">الفارق (Discrepancy)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {parts.map(p => {
+                    const actual = actualCounts[p.id] !== undefined ? actualCounts[p.id] : p.quantity;
+                    const diff = actual - p.quantity;
+                    return (
+                      <tr key={p.id} className="hover:bg-slate-50">
+                        <td className="py-2.5 px-3 font-semibold text-slate-900">{p.name}</td>
+                        <td className="py-2.5 px-3 font-mono text-sky-700">{p.warehouseLocation?.code || p.area || '—'}</td>
+                        <td className="py-2.5 px-3 font-bold text-slate-700">{p.quantity}</td>
+                        <td className="py-2.5 px-3">
+                          <input
+                            type="number"
+                            min="0"
+                            value={actual}
+                            onChange={(e) => {
+                              const val = Math.max(0, parseInt(e.target.value) || 0);
+                              setActualCounts(prev => ({ ...prev, [p.id]: val }));
+                            }}
+                            className="w-20 p-1.5 border border-slate-300 rounded-lg text-center font-bold text-xs"
+                          />
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            diff === 0 
+                              ? 'bg-slate-100 text-slate-600' 
+                              : diff > 0 
+                              ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' 
+                              : 'bg-rose-100 text-rose-700 border border-rose-300'
+                          }`}>
+                            {diff === 0 ? 'مطابق (0)' : diff > 0 ? `+${diff} زيادة` : `${diff} عجز`}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {countSyncSuccess && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs flex items-center gap-2">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>تم تحديث أرصدة المخزون وتسجيل جلسة الجرد بنجاح في قاعدة البيانات!</span>
+              </div>
+            )}
+
+            <div className="pt-2 flex items-center justify-between border-t border-slate-100">
+              <span className="text-xs text-slate-500">
+                إجمالي القطع المجرودة: <strong>{parts.length}</strong>
+              </span>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCountModal(false)}
+                  className="px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-xl text-xs font-semibold"
+                >
+                  إغلاق
+                </button>
+                <button
+                  type="button"
+                  disabled={isSyncingCount}
+                  onClick={async () => {
+                    setIsSyncingCount(true);
+                    try {
+                      // Apply differences
+                      for (const p of parts) {
+                        const actual = actualCounts[p.id] !== undefined ? actualCounts[p.id] : p.quantity;
+                        const delta = actual - p.quantity;
+                        if (delta !== 0 && onAdjustQuantity) {
+                          onAdjustQuantity(p.id, delta);
+                        }
+                      }
+                      await api.createInventoryCount(`جرد مستودع دوري — ${new Date().toLocaleDateString('ar-JO')}`);
+                      setCountSyncSuccess(true);
+                      setTimeout(() => {
+                        setCountSyncSuccess(false);
+                        setShowCountModal(false);
+                      }, 2000);
+                    } catch (e: any) {
+                      alert('فشل حفظ جلسة الجرد: ' + e.message);
+                    } finally {
+                      setIsSyncingCount(false);
+                    }
+                  }}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>{isSyncingCount ? 'جارٍ المزامنة...' : 'تأكيد ومزامنة الفروقات'}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

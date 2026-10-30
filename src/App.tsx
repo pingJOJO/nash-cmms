@@ -40,7 +40,7 @@ import { OfflineBanner } from './components/common/OfflineBanner';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoginView } from './components/auth/LoginView';
 import { api } from './services/api';
-import { MessageSquare, Sparkles, X, Send, Bot, Check, CheckCircle2, Plus, UploadCloud } from 'lucide-react';
+import { MessageSquare, Sparkles, X, Send, Bot, Check, UploadCloud } from 'lucide-react';
 
 export function App() {
   return (
@@ -483,6 +483,11 @@ function AppContent() {
     api.updateAsset(id, updates).catch(err => console.warn('API update asset fallback:', err));
   };
 
+  const handleDeleteAsset = (id: string) => {
+    setAssets(prev => prev.filter(a => a.id !== id));
+    api.deleteAsset(id).catch(err => console.warn('API delete asset fallback:', err));
+  };
+
   // PM Handlers
   const handleAddPM = (newPm: PreventiveMaintenance) => {
     setPms(prev => [newPm, ...prev]);
@@ -562,8 +567,10 @@ function AppContent() {
     return <LoginView />;
   }
 
+  const isRtl = settings.language === 'Arabic' || settings.language === 'ar' || settings.language === 'العربية';
+
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans text-slate-900 select-none">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans text-slate-900 select-none">
       {/* Sidebar Navigation */}
       <Sidebar
         currentRoute={currentRoute}
@@ -587,6 +594,11 @@ function AppContent() {
           currentRoute={currentRoute}
           collapsed={sidebarCollapsed}
           onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+          language={settings.language}
+          onToggleLanguage={(newLang) => {
+            setSettings(prev => ({ ...prev, language: newLang }));
+            document.documentElement.dir = (newLang === 'Arabic' || newLang === 'ar' || newLang === 'العربية') ? 'rtl' : 'ltr';
+          }}
         />
 
         {/* Dynamic Route Content */}
@@ -604,6 +616,7 @@ function AppContent() {
               assets={assets}
               onAddAsset={handleAddAsset}
               onUpdateAsset={handleUpdateAsset}
+              onDeleteAsset={handleDeleteAsset}
             />
           )}
 

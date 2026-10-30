@@ -17,6 +17,7 @@ import {
   Cpu,
   Coins,
   ShieldAlert,
+  ShieldCheck,
   Activity,
   Leaf,
   Trees,
@@ -25,6 +26,7 @@ import {
 import { WorkOrder, KPIData } from '../../types/cmms';
 import { AnalyticsSubTab } from '../layout/Sidebar';
 import { api } from '../../services/api';
+import { AuditReportModal } from './AuditReportModal';
 
 interface AnalyticsViewProps {
   workOrders: WorkOrder[];
@@ -40,6 +42,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
   const [selectedPeriod, setSelectedPeriod] = useState<'30days' | 'quarter' | 'year' | 'all'>('30days');
   const [internalSubTab, setInternalSubTab] = useState<AnalyticsSubTab>(activeSubTab);
   const [kpiData, setKpiData] = useState<KPIData | null>(null);
+  const [showAuditReport, setShowAuditReport] = useState(false);
 
   useEffect(() => {
     api.getKPI().then(setKpiData).catch(console.warn);
@@ -228,6 +231,15 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
           >
             <Download className="w-3.5 h-3.5 text-sky-600" />
             <span>Export Report (CSV)</span>
+          </button>
+
+          {/* HCAC / JCI Audit Readiness Report */}
+          <button
+            onClick={() => setShowAuditReport(true)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-xl text-xs font-bold text-emerald-800 shadow-2xs transition-colors cursor-pointer"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span>تقرير التدقيق (HCAC / JCI)</span>
           </button>
         </div>
       </div>
@@ -618,6 +630,14 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* HCAC / JCI Audit Readiness Certificate Modal */}
+      <AuditReportModal
+        isOpen={showAuditReport}
+        onClose={() => setShowAuditReport(false)}
+        workOrders={filteredOrders}
+        period={selectedPeriod}
+      />
     </div>
   );
 };

@@ -28,6 +28,15 @@ export const DEMO_USERS: AuthUser[] = [
     avatar: 'O'
   },
   {
+    id: 'USR-004',
+    name: 'Elena Rostova',
+    email: 'elena@nexcmms.online',
+    role: 'MANAGER',
+    jobTitle: 'Biomedical & Infrastructure Manager',
+    hourlyRate: 58.00,
+    avatar: 'E'
+  },
+  {
     id: 'USR-005',
     name: 'Marcus Vance',
     email: 'marcus@nexcmms.online',

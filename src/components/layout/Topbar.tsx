@@ -14,7 +14,8 @@ import {
   Wrench,
   Shield,
   FileText,
-  Mic
+  Mic,
+  Globe
 } from 'lucide-react';
 import { NavRoute } from './Sidebar';
 import { useAuth, DEMO_USERS, UserRole } from '../../context/AuthContext';
@@ -26,6 +27,8 @@ interface TopbarProps {
   currentRoute: NavRoute;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  language?: string;
+  onToggleLanguage?: (lang: string) => void;
 }
 
 const ROUTE_TITLES: Record<NavRoute, string> = {
@@ -48,7 +51,9 @@ const ROUTE_TITLES: Record<NavRoute, string> = {
 export const Topbar: React.FC<TopbarProps> = ({
   currentRoute,
   collapsed,
-  onToggleCollapse
+  onToggleCollapse,
+  language = 'Arabic',
+  onToggleLanguage
 }) => {
   const { currentUser, logout, quickSwitchRole } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
@@ -184,6 +189,20 @@ export const Topbar: React.FC<TopbarProps> = ({
         >
           <Mic className="w-3.5 h-3.5 text-white animate-pulse" />
           <span className="hidden sm:inline">أمر صوتي</span>
+        </button>
+
+        {/* Bilingual AR/EN Switcher */}
+        <button
+          type="button"
+          onClick={() => {
+            const isAr = language === 'Arabic' || language === 'ar' || language === 'العربية';
+            onToggleLanguage?.(isAr ? 'English' : 'Arabic');
+          }}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-all cursor-pointer"
+          title="تبديل اللغة (Toggle Arabic / English)"
+        >
+          <Globe className="w-3.5 h-3.5 text-sky-600" />
+          <span>{(language === 'Arabic' || language === 'ar' || language === 'العربية') ? 'English' : 'العربية'}</span>
         </button>
 
         {/* Notifications Icon Button */}

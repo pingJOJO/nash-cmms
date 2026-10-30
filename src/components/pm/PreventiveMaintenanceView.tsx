@@ -10,7 +10,15 @@ import {
   Check, 
   Filter,
   Calendar,
-  Layers
+  Layers,
+  CheckSquare,
+  Square,
+  Clock,
+  User,
+  MapPin,
+  ClipboardCheck,
+  X,
+  Sparkles
 } from 'lucide-react';
 import { PreventiveMaintenance, Priority } from '../../types/cmms';
 import { PriorityBadge } from '../common/Badge';
@@ -27,6 +35,11 @@ export const PreventiveMaintenanceView: React.FC<PMViewProps> = ({ pms, onAddPM,
   const [showPriorityMenu, setShowPriorityMenu] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [triggeredId, setTriggeredId] = useState<string | null>(null);
+
+  // Detail & Checklist Modal State
+  const [selectedPM, setSelectedPM] = useState<PreventiveMaintenance | null>(null);
+  const [pmChecklist, setPmChecklist] = useState<Array<{ id: string; text: string; done: boolean }>>([]);
+  const [checklistSaved, setChecklistSaved] = useState(false);
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -46,6 +59,29 @@ export const PreventiveMaintenanceView: React.FC<PMViewProps> = ({ pms, onAddPM,
     const matchesPriority = selectedPriority === 'ALL' || pm.priority === selectedPriority;
     return matchesSearch && matchesPriority;
   });
+
+  const handleOpenDetail = (pm: PreventiveMaintenance) => {
+    setSelectedPM(pm);
+    setChecklistSaved(false);
+    // Initialize standard checklist for this PM schedule
+    setPmChecklist([
+      { id: '1', text: `فحص السلامة العام وإيقاف التشغيل الآمن لـ ${pm.name}`, done: true },
+      { id: '2', text: 'فحص التوصيلات الكهربائية وقراءات الفولتية والأمبيرية', done: false },
+      { id: '3', text: 'تشحيم المحامل والمحركات وتنظيف فلاتر الهواء/الزيت', done: false },
+      { id: '4', text: 'معايرة الحساسات والتأكد من توافق القراءات مع المعايير القياسية', done: false },
+      { id: '5', text: 'إعادة التشغيل التجريبي وتسجيل قراءات عداد التشغيل في النظام', done: false }
+    ]);
+  };
+
+  const handleToggleChecklistItem = (id: string) => {
+    setPmChecklist(prev => prev.map(item => item.id === id ? { ...item, done: !item.done } : item));
+    setChecklistSaved(false);
+  };
+
+  const handleSaveChecklist = () => {
+    setChecklistSaved(true);
+    setTimeout(() => setChecklistSaved(false), 3000);
+  };
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,7 +229,7 @@ export const PreventiveMaintenanceView: React.FC<PMViewProps> = ({ pms, onAddPM,
               className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-600 hover:to-teal-600 text-white text-xs font-bold rounded-l-xl transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              Create Trigger
+              <span>Create PM Trigger</span>
             </button>
             <button
               onClick={() => setShowModal(true)}
@@ -233,7 +269,11 @@ export const PreventiveMaintenanceView: React.FC<PMViewProps> = ({ pms, onAddPM,
                   </tr>
                 ) : (
                   filteredPMs.map(pm => (
-                    <tr key={pm.id} className="hover:bg-sky-50/40 transition-colors">
+                    <tr 
+                      key={pm.id} 
+                      onClick={() => handleOpenDetail(pm)}
+                      className="hover:bg-sky-50/40 transition-colors cursor-pointer"
+                    >
                       <td className="py-3.5 px-4 font-semibold text-slate-400 font-mono">{pm.id}</td>
                       <td className="py-3.5 px-4 font-bold text-slate-900">{pm.name}</td>
                       <td className="py-3.5 px-4 font-semibold text-sky-700">{pm.workOrderTitle}</td>
@@ -256,7 +296,7 @@ export const PreventiveMaintenanceView: React.FC<PMViewProps> = ({ pms, onAddPM,
                           {pm.category}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-center">
+                      <td className="py-3.5 px-4 text-center" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => handleTrigger(pm)}
                           disabled={triggeredId === pm.id}
@@ -289,6 +329,120 @@ export const PreventiveMaintenanceView: React.FC<PMViewProps> = ({ pms, onAddPM,
         </div>
       </div>
 
+      {/* PM Detail & Interactive Checklist Modal */}
+      {selectedPM && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-bold text-slate-400">{selectedPM.id}</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                  {selectedPM.frequency}
+                </span>
+                <PriorityBadge priority={selectedPM.priority} />
+              </div>
+              <button
+                onClick={() => setSelectedPM(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-bold text-slate-900">{selectedPM.name}</h3>
+              <p className="text-xs text-sky-700 font-semibold">{selectedPM.workOrderTitle}</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+              <div className="flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                <span>Next Due: <strong>{selectedPM.nextWorkOrder}</strong></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <User className="w-3.5 h-3.5 text-slate-400" />
+                <span>Assigned: <strong>{selectedPM.worker}</strong></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                <span>Location: <strong>{selectedPM.locationName}</strong></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Layers className="w-3.5 h-3.5 text-slate-400" />
+                <span>Category: <strong>{selectedPM.category}</strong></span>
+              </div>
+            </div>
+
+            {/* Interactive Checklist Section */}
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <ClipboardCheck className="w-4 h-4 text-emerald-600" />
+                  <span>قائمة مهام الصيانة الوقائية (Inspection Checklist):</span>
+                </span>
+                <span className="text-[11px] font-semibold text-slate-500">
+                  {pmChecklist.filter(i => i.done).length} / {pmChecklist.length} مكتمل
+                </span>
+              </div>
+
+              <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200">
+                {pmChecklist.map((item) => (
+                  <div
+                    key={item.id}
+                    onClick={() => handleToggleChecklistItem(item.id)}
+                    className="flex items-center gap-2.5 p-2 bg-white rounded-lg border border-slate-200 hover:border-sky-300 transition cursor-pointer"
+                  >
+                    {item.done ? (
+                      <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0" />
+                    ) : (
+                      <Square className="w-4 h-4 text-slate-400 shrink-0" />
+                    )}
+                    <span className={`text-xs ${item.done ? 'line-through text-slate-400' : 'text-slate-700 font-medium'}`}>
+                      {item.text}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {checklistSaved && (
+                <div className="p-2 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-lg flex items-center gap-1.5 animate-in fade-in">
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>تم حفظ حالة مهام الصيانة الوقائية بنجاح!</span>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => handleTrigger(selectedPM)}
+                className="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer"
+              >
+                <Zap className="w-3.5 h-3.5 fill-white" />
+                <span>Run Now (إصدار أمر عمل فوري)</span>
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleSaveChecklist}
+                  className="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"
+                >
+                  حفظ التقرير (Save)
+                </button>
+                <button
+                  onClick={() => setSelectedPM(null)}
+                  className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer"
+                >
+                  إغلاق
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add PM Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
@@ -310,7 +464,7 @@ export const PreventiveMaintenanceView: React.FC<PMViewProps> = ({ pms, onAddPM,
                 <label className="font-semibold text-slate-700 block mb-1">Generated Work Order Title</label>
                 <input
                   type="text"
-                  placeholder="e.g. Inspect chiller compressor & refrigerant levels"
+                  placeholder="e.g. Execute 500-hour comprehensive inspection"
                   value={workOrderTitle}
                   onChange={(e) => setWorkOrderTitle(e.target.value)}
                   className="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-sky-500"
@@ -324,11 +478,12 @@ export const PreventiveMaintenanceView: React.FC<PMViewProps> = ({ pms, onAddPM,
                     onChange={(e) => setFrequency(e.target.value)}
                     className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white"
                   >
-                    <option value="Weekly">Weekly</option>
-                    <option value="Bi-Weekly">Bi-Weekly</option>
-                    <option value="Monthly">Monthly</option>
-                    <option value="Quarterly">Quarterly</option>
-                    <option value="Annually">Annually</option>
+                    <option value="Daily">Daily (يومي)</option>
+                    <option value="Weekly">Weekly (أسبوعي)</option>
+                    <option value="Bi-Weekly">Bi-Weekly (كل أسبوعين)</option>
+                    <option value="Monthly">Monthly (شهري)</option>
+                    <option value="Quarterly">Quarterly (ربع سنوي)</option>
+                    <option value="Annually">Annually (سنوي)</option>
                   </select>
                 </div>
                 <div>
@@ -341,6 +496,7 @@ export const PreventiveMaintenanceView: React.FC<PMViewProps> = ({ pms, onAddPM,
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
                     <option value="HIGH">High</option>
+                    <option value="CRITICAL">Critical</option>
                   </select>
                 </div>
               </div>

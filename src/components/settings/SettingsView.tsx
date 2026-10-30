@@ -196,9 +196,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </label>
               <select 
                 value={formData.language}
-                onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormData({ ...formData, language: val });
+                  document.documentElement.dir = (val === 'Arabic' || val === 'العربية') ? 'rtl' : 'ltr';
+                }}
                 className="w-full max-w-md px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-sky-500 shadow-2xs"
               >
+                <option value="Arabic">العربية (Arabic - RTL)</option>
                 <option value="English">English</option>
                 <option value="French">Français</option>
                 <option value="German">Deutsch</option>

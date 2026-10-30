@@ -168,7 +168,7 @@ app.get('/api/health', async (_req: Request, res: Response) => {
 // ==========================================
 // V2: KPI REPORTS & ANALYTICS API
 // ==========================================
-app.get('/api/reports/kpi', async (_req: Request, res: Response) => {
+app.get(['/api/reports/kpi', '/api/kpi'], async (_req: Request, res: Response) => {
   try {
     // Fetch all completed work orders for MTTR calculation
     const completedWOs = await prisma.workOrder.findMany({
@@ -809,38 +809,84 @@ app.put('/api/work-orders/:id', async (req: Request, res: Response) => {
     const id = req.params.id as string;
     const body = req.body;
 
-    const updated = await prisma.workOrder.update({
-      where: { id },
-      data: {
-        title: body.title,
-        description: body.description,
-        status: body.status,
-        priority: body.priority,
-        imageUrl: body.imageUrl,
-        locationId: body.locationId,
-        assetId: body.assetId,
-        categoryId: body.categoryId,
-        assignedToId: body.assignedToId,
-        dueDate: body.dueDate ? new Date(body.dueDate) : undefined,
-        expectedStartDate: body.expectedStartDate ? new Date(body.expectedStartDate) : undefined,
-        estimatedDurationHours: body.estimatedDurationHours ? Number(body.estimatedDurationHours) : undefined,
-        requiresSignature: body.requiresSignature
-      },
-      include: {
-        tasks: { orderBy: { orderIndex: 'asc' } },
-        labors: { include: { user: true } },
-        additionalCosts: true,
-        partsUsed: { include: { part: true } },
-        comments: { include: { user: true }, orderBy: { createdAt: 'desc' } },
-        location: true,
-        asset: true,
-        category: true,
-        assignedTo: true,
-        createdBy: true
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Fetch current work order state
+      const current = await tx.workOrder.findUnique({
+        where: { id },
+        include: { partsUsed: true }
+      });
+
+      if (!current) {
+        throw new Error(`Work order with ID ${id} not found`);
       }
+
+      const isMarkingCompleted = body.status === WorkOrderStatus.COMPLETED && current.status !== WorkOrderStatus.COMPLETED;
+
+      // 2. If transitioning to COMPLETED, ensure parts stock is deducted atomically
+      if (isMarkingCompleted && current.partsUsed.length > 0) {
+        for (const item of current.partsUsed) {
+          await tx.part.update({
+            where: { id: item.partId },
+            data: {
+              quantity: {
+                decrement: item.quantity
+              }
+            }
+          });
+        }
+      }
+
+      // 3. Update the work order
+      const updated = await tx.workOrder.update({
+        where: { id },
+        data: {
+          title: body.title,
+          description: body.description,
+          status: body.status,
+          priority: body.priority,
+          imageUrl: body.imageUrl,
+          locationId: body.locationId,
+          assetId: body.assetId,
+          categoryId: body.categoryId,
+          assignedToId: body.assignedToId,
+          dueDate: body.dueDate ? new Date(body.dueDate) : undefined,
+          expectedStartDate: body.expectedStartDate ? new Date(body.expectedStartDate) : undefined,
+          estimatedDurationHours: body.estimatedDurationHours ? Number(body.estimatedDurationHours) : undefined,
+          requiresSignature: body.requiresSignature
+        },
+        include: {
+          tasks: { orderBy: { orderIndex: 'asc' } },
+          labors: { include: { user: true } },
+          additionalCosts: true,
+          partsUsed: { include: { part: true } },
+          comments: { include: { user: true }, orderBy: { createdAt: 'desc' } },
+          location: true,
+          asset: true,
+          category: true,
+          assignedTo: true,
+          createdBy: true
+        }
+      });
+
+      return updated;
     });
 
-    return sendSuccess(res, updated, `Work order ${id} updated successfully`);
+    // Record audit log if status changed
+    if (body.status) {
+      await createAuditLog(
+        AuditAction.STATUS_CHANGE,
+        'WorkOrder',
+        id,
+        (req.headers['x-user-id'] as string) || 'USR-001',
+        {
+          assetId: result.assetId || undefined,
+          newValue: body.status,
+          reason: `Work order status updated to ${body.status}`
+        }
+      );
+    }
+
+    return sendSuccess(res, result, `Work order ${id} updated successfully`);
   } catch (error: any) {
     return sendError(res, 'Failed to update work order', error.message);
   }
@@ -1249,7 +1295,7 @@ app.post('/api/assets/:id/calibrations', async (req: Request, res: Response) => 
 // ==========================================
 // 6. PREVENTIVE MAINTENANCE API (Full CRUD)
 // ==========================================
-app.get('/api/pms', async (_req: Request, res: Response) => {
+app.get(['/api/pms', '/api/preventive-maintenances'], async (_req: Request, res: Response) => {
   try {
     const pms = await prisma.preventiveMaintenance.findMany({
       include: {
