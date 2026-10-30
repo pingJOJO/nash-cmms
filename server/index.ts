@@ -319,93 +319,73 @@ app.post('/api/voice/process', async (req: Request, res: Response) => {
 
     const startTime = Date.now();
     const resolvedUserId = await getDynamicUserId(userId || (req.headers['x-user-id'] as string));
-    const text = transcript.trim().toLowerCase();
+    const text = transcript.trim();
 
-    // --- Pattern Matching Engine for Arabic & English ---
+    // --- Enhanced Pattern Matching Engine for Arabic & English ---
     let actionType = 'UNKNOWN';
     let parsedData: Record<string, any> = {};
     let entityId: string | null = null;
 
-    // Pattern 1: Create Work Order / Report Fault
-    const createWOPatterns = [
-      /(?:أنشئ|سجل|بلاغ|عطل|خراب|مشكلة|report|create|new fault|breakdown)\s+(?:في|ل|for|in)?\s*(.+)/i,
-      /(?:الجهاز|ماكينة|machine|device|equipment)\s+(.+?)\s+(?:عطلان|خربان|معطل|not working|broken|down)/i
-    ];
-    for (const pattern of createWOPatterns) {
-      const match = text.match(pattern);
-      if (match) {
+    // Pattern 1: Close Work Order
+    // Matches: أغلق أمر العمل WO000001 تم الفحص بنجاح / close work order WO000001 completed / أنهيت WO000001 / أغلق أمر العمل 1
+    const closeMatch = text.match(/(?:أغلق|انتهيت\s+من|أنهيت|تم\s+إنجاز|تم\s+إغلاق|إغلاق|close|complete|finish)\s+(?:أمر\s+(?:العمل|عمل)|أمر|بلاغ|تذكرة|work\s+order)?\s*(?:رقم|#)?\s*([a-zA-Z0-9_-]+)(?:\s+(.+))?/i);
+    if (closeMatch && (closeMatch[1].match(/^(WO|wo|[a-zA-Z]{1,3}-?\d+|\d+)$/i) || closeMatch[0].includes('أمر') || closeMatch[0].includes('order') || closeMatch[0].includes('بلاغ'))) {
+      let code = closeMatch[1].toUpperCase();
+      if (/^\d+$/.test(code)) {
+        code = 'WO' + code.padStart(6, '0');
+      }
+      actionType = 'CLOSE_WO';
+      parsedData = {
+        workOrderCode: code,
+        actionTaken: closeMatch[2]?.trim() || (language === 'ar' ? 'تم الفحص والإنجاز بنجاح' : 'Inspected and completed successfully'),
+        status: 'COMPLETED'
+      };
+    }
+
+    // Pattern 2: Stock Update / Shelf Inventory Count (e.g. رف A-02 رولمان بلي 6204 العدد 15 or جرد رف A-02...)
+    if (actionType === 'UNKNOWN') {
+      const stockMatch = text.match(/(?:جرد\s+)?(?:رف|shelf|rack|bin)\s+([a-zA-Z0-9_-]+)\s*[,،]?\s*(.+?)\s*[,،]?\s*(?:(?:العدد|الكمية|عدد|count|qty)\s*[:=]?\s*(\d+)|(\d+)\s*(?:حبة|قطعة|وحدة|piece|pcs)?)$/i);
+      if (stockMatch) {
+        const qty = parseInt(stockMatch[3] || stockMatch[4], 10);
+        actionType = 'STOCK_UPDATE';
+        parsedData = {
+          binLocation: stockMatch[1].trim(),
+          partName: stockMatch[2].trim(),
+          quantity: isNaN(qty) ? 1 : qty
+        };
+      }
+    }
+
+    // Pattern 3: Parts Deduction / Consumption (e.g. استخدمت 2 رولمان بلي من المستودع / used 2 bearings from warehouse)
+    if (actionType === 'UNKNOWN') {
+      const partsMatch = text.match(/(?:استخدمت|استعملت|صرفت|used|consumed)\s+(\d+)\s*(?:من|of|قطعة|وحدة)?\s*(.+?)(?:\s+من\s+(?:المستودع|مستودع|warehouse)\s*(.*))?$/i);
+      if (partsMatch) {
+        actionType = 'PARTS_DEDUCTION';
+        parsedData = {
+          quantity: parseInt(partsMatch[1], 10),
+          partName: partsMatch[2]?.trim(),
+          warehouse: partsMatch[3]?.trim() || (language === 'ar' ? 'المستودع الرئيسي' : 'Main Warehouse')
+        };
+      }
+    }
+
+    // Pattern 4: Create Work Order / Report Fault (e.g. أنشئ بلاغ عطل لمضخة الأكسجين في قسم العناية المركزة)
+    if (actionType === 'UNKNOWN') {
+      const createMatch = text.match(/(?:أنشئ|سجل|فتح|بلاغ|عطل|خراب|مشكلة|تسريب|توقف|ماس|حرارة|report|create|breakdown|leak)\s+(?:بلاغ\s+عطل|أمر\s+عمل|عطل|مشكلة|work\s+order)?\s*(?:في|ل|for|in)?\s*(.+)/i);
+      if (createMatch) {
+        const rawSubject = createMatch[1].trim();
         actionType = 'CREATE_WO';
         parsedData = {
-          title: `بلاغ عطل: ${match[1].trim()}`,
-          assetName: match[1].trim(),
+          title: language === 'ar' ? `بلاغ عطل: ${rawSubject}` : `Fault Report: ${rawSubject}`,
+          assetName: rawSubject,
           priority: 'HIGH',
           status: 'OPEN'
         };
-        break;
-      }
-    }
-
-    // Pattern 2: Close Work Order
-    if (actionType === 'UNKNOWN') {
-      const closeWOPatterns = [
-        /(?:أغلق|انتهيت|تم|إغلاق|close|done|finished|completed)\s+(?:أمر عمل|أمر|wo|work order)?\s*(?:رقم|#)?\s*(\w+)/i,
-        /(?:تم تغيير|تم إصلاح|تم صيانة|replaced|fixed|repaired)\s+(.+?)(?:\s+(?:في|ل|for)\s+(.+))?$/i
-      ];
-      for (const pattern of closeWOPatterns) {
-        const match = text.match(pattern);
-        if (match) {
-          actionType = 'CLOSE_WO';
-          parsedData = {
-            workOrderCode: match[1]?.trim(),
-            actionTaken: match[0],
-            status: 'COMPLETED'
-          };
-          break;
-        }
-      }
-    }
-
-    // Pattern 3: Stock Update / Inventory Count
-    if (actionType === 'UNKNOWN') {
-      const stockPatterns = [
-        /(?:رف|shelf|rack|bin)\s+([A-Za-z0-9]+)\s*[,،]?\s*(.+?)\s*[,،]?\s*(?:العدد|الكمية|عدد|count|qty)?\s*(\d+)\s*(?:حبة|قطعة|piece|pcs)?/i,
-        /(?:كمية|عدد|stock|quantity)\s+(.+?)\s+(\d+)\s*(?:حبة|قطعة|piece)?/i
-      ];
-      for (const pattern of stockPatterns) {
-        const match = text.match(pattern);
-        if (match) {
-          actionType = 'STOCK_UPDATE';
-          parsedData = {
-            binLocation: match[1]?.trim(),
-            partName: match[2]?.trim(),
-            quantity: parseInt(match[3] || match[2], 10)
-          };
-          break;
-        }
-      }
-    }
-
-    // Pattern 4: Parts deduction with work order context
-    if (actionType === 'UNKNOWN') {
-      const partsPatterns = [
-        /(?:استخدمت|استعملت|used|consumed)\s+(\d+)\s+(?:من|of|قطعة)?\s*(.+?)(?:\s+من مستودع\s+(.+))?$/i
-      ];
-      for (const pattern of partsPatterns) {
-        const match = text.match(pattern);
-        if (match) {
-          actionType = 'PARTS_DEDUCTION';
-          parsedData = {
-            quantity: parseInt(match[1], 10),
-            partName: match[2]?.trim(),
-            warehouse: match[3]?.trim()
-          };
-          break;
-        }
       }
     }
 
     const processingMs = Date.now() - startTime;
-    const confidence = actionType !== 'UNKNOWN' ? 0.85 : 0.30;
+    const confidence = actionType !== 'UNKNOWN' ? 0.95 : 0.30;
 
     // Log the voice command
     const voiceLog = await prisma.voiceCommandLog.create({
@@ -810,14 +790,21 @@ app.put('/api/work-orders/:id', async (req: Request, res: Response) => {
     const body = req.body;
 
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Fetch current work order state
-      const current = await tx.workOrder.findUnique({
-        where: { id },
+      // 1. Fetch current work order state by ID or Code (case-insensitive)
+      const current = await tx.workOrder.findFirst({
+        where: {
+          OR: [
+            { id },
+            { code: id },
+            { id: id.toUpperCase() },
+            { code: id.toUpperCase() }
+          ]
+        },
         include: { partsUsed: true }
       });
 
       if (!current) {
-        throw new Error(`Work order with ID ${id} not found`);
+        throw new Error(`Work order with ID/Code ${id} not found`);
       }
 
       const isMarkingCompleted = body.status === WorkOrderStatus.COMPLETED && current.status !== WorkOrderStatus.COMPLETED;
@@ -838,7 +825,7 @@ app.put('/api/work-orders/:id', async (req: Request, res: Response) => {
 
       // 3. Update the work order
       const updated = await tx.workOrder.update({
-        where: { id },
+        where: { id: current.id },
         data: {
           title: body.title,
           description: body.description,
@@ -895,8 +882,21 @@ app.put('/api/work-orders/:id', async (req: Request, res: Response) => {
 app.delete('/api/work-orders/:id', async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string;
-    await prisma.workOrder.delete({ where: { id } });
-    return sendSuccess(res, { id }, `Work order ${id} deleted successfully`);
+    const wo = await prisma.workOrder.findFirst({
+      where: {
+        OR: [
+          { id },
+          { code: id },
+          { id: id.toUpperCase() },
+          { code: id.toUpperCase() }
+        ]
+      }
+    });
+    if (!wo) {
+      return sendError(res, `Work order ${id} not found`, null, 404);
+    }
+    await prisma.workOrder.delete({ where: { id: wo.id } });
+    return sendSuccess(res, { id: wo.id }, `Work order ${id} deleted successfully`);
   } catch (error: any) {
     return sendError(res, 'Failed to delete work order', error.message);
   }

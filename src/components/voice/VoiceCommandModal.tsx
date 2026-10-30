@@ -11,7 +11,8 @@ import {
   Package, 
   ArrowRight,
   RefreshCw,
-  Volume2
+  Volume2,
+  FlaskConical
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { VoiceProcessResponse } from '../../types/cmms';
@@ -158,9 +159,37 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
           setExecutionMessage(language === 'ar' ? 'تم تأكيد الإجراء بنجاح' : 'Action verified');
         }
       } else if (result.actionType === 'STOCK_UPDATE' || result.actionType === 'PARTS_DEDUCTION') {
-        const msg = language === 'ar'
-          ? `✅ تم تسجيل حركة المستودع: ${result.parsedData.partName || 'القطعة'} (${result.parsedData.quantity || 1} وحدة)`
-          : `✅ Stock adjustment logged: ${result.parsedData.partName || 'Part'} (${result.parsedData.quantity || 1} units)`;
+        const qty = Number(result.parsedData.quantity) || 1;
+        const partName = result.parsedData.partName || '';
+        const binLocation = result.parsedData.binLocation;
+        
+        let updatedPart: any = null;
+        try {
+          const parts = await api.getParts();
+          const match = parts.find(p => 
+            (partName && (p.name.toLowerCase().includes(partName.toLowerCase()) || partName.toLowerCase().includes(p.name.toLowerCase()))) ||
+            (binLocation && p.area && p.area.toLowerCase().includes(binLocation.toLowerCase()))
+          );
+          if (match) {
+            const newQty = result.actionType === 'PARTS_DEDUCTION' 
+              ? Math.max(0, match.quantity - qty)
+              : qty;
+            updatedPart = await api.updatePart(match.id, { 
+              quantity: newQty,
+              ...(binLocation ? { area: binLocation } : {})
+            });
+          }
+        } catch (e) {
+          console.warn('Part sync fallback to audit log:', e);
+        }
+
+        const msg = updatedPart
+          ? (language === 'ar'
+              ? `✅ تم تحديث رصيد القطعة (${updatedPart.name}) إلى ${updatedPart.quantity} وحدة في المستودع`
+              : `✅ Part (${updatedPart.name}) stock updated to ${updatedPart.quantity} units`)
+          : (language === 'ar'
+              ? `✅ تم تسجيل حركة المستودع: ${partName || 'القطعة'} (${qty} وحدة)`
+              : `✅ Stock adjustment logged: ${partName || 'Part'} (${qty} units)`);
         setExecutionMessage(msg);
         if (onSuccess) onSuccess(msg);
       } else {
@@ -194,16 +223,22 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
               <Sparkles className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                {language === 'ar' ? 'الإدخال الصوتي الذكي (Voice-to-Action)' : 'Smart Voice-to-Action Assistant'}
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-base font-bold text-white">
+                  {language === 'ar' ? 'الإدخال الصوتي الذكي (Voice-to-Action)' : 'Smart Voice-to-Action Assistant'}
+                </h3>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-xs">
+                  <FlaskConical className="w-3 h-3 text-amber-400" />
+                  <span>{language === 'ar' ? 'ميزة تجريبية' : 'Experimental (Beta)'}</span>
+                </span>
                 <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                   AI v2.0
                 </span>
-              </h3>
-              <p className="text-xs text-slate-400">
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
                 {language === 'ar' 
-                  ? 'سجّل بلاغاً أو أغلق أمر عمل أو حدّث المخزون بصوتك في 15 ثانية' 
-                  : 'Report faults, complete orders or adjust stock by voice in 15s'}
+                  ? 'ميزة تجريبية ذكية: سجّل بلاغاً أو أغلق أمر عمل أو حدّث المخزون بصوتك في 15 ثانية' 
+                  : 'Experimental smart feature: Report faults, complete orders or adjust stock by voice in 15s'}
               </p>
             </div>
           </div>
@@ -398,6 +433,7 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
                 <button
                   key={idx}
                   type="button"
+                  data-testid={`sample-command-${idx}`}
                   onClick={() => {
                     setTranscript(sample.text);
                     handleProcess(sample.text);
@@ -418,7 +454,10 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
 
         {/* Footer */}
         <div className="px-6 py-3.5 bg-slate-950 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-          <span>{language === 'ar' ? 'ميزة حصرية للفنيين في الميدان' : 'Field Technician Fast-Entry'}</span>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span>{language === 'ar' ? 'ميزة تجريبية قيد التطوير والاختبار الميداني' : 'Beta experimental feature under active field testing'}</span>
+          </div>
           <button
             type="button"
             onClick={onClose}

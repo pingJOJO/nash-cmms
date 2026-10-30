@@ -190,10 +190,13 @@ export const Topbar: React.FC<TopbarProps> = ({
           type="button"
           onClick={() => setShowVoiceModal(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white text-xs font-bold shadow-sm shadow-sky-500/20 transition-all cursor-pointer"
-          title={isAr ? 'الإدخال الصوتي الذكي (Voice-to-Action)' : 'Smart Voice Action'}
+          title={isAr ? 'الإدخال الصوتي الذكي (ميزة تجريبية)' : 'Smart Voice Action (Beta Feature)'}
         >
           <Mic className="w-3.5 h-3.5 text-white animate-pulse" />
           <span className="hidden sm:inline">{isAr ? 'أمر صوتي' : 'Voice Action'}</span>
+          <span className="px-1.5 py-0.2 rounded-md bg-amber-400 text-slate-900 text-[9px] font-black uppercase tracking-tight">
+            {isAr ? 'تجريبي' : 'Beta'}
+          </span>
         </button>
 
         {/* High-Contrast Segmented Language Switcher (AR / EN) */}
