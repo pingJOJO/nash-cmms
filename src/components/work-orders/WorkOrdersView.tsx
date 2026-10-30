@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { WorkOrder, WorkOrderStatus, Priority } from '../../types/cmms';
 import { PriorityBadge, StatusBadge } from '../common/Badge';
+import { t, isArabicLang } from '../../utils/translations';
 
 export type WorkOrderViewMode = 'list' | 'calendar' | 'workload' | 'column';
 
@@ -28,13 +29,16 @@ interface WorkOrdersViewProps {
   workOrders: WorkOrder[];
   onSelectWorkOrder: (wo: WorkOrder) => void;
   onOpenCreateModal: () => void;
+  language?: string;
 }
 
 export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
   workOrders,
   onSelectWorkOrder,
-  onOpenCreateModal
+  onOpenCreateModal,
+  language
 }) => {
+  const isAr = isArabicLang(language);
   const [viewMode, setViewMode] = useState<WorkOrderViewMode>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('ALL');
@@ -108,7 +112,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
             }`}
           >
             <List className="w-3.5 h-3.5" />
-            List View
+            {t.workOrders.views.list[isAr ? 'ar' : 'en']}
           </button>
           <button
             onClick={() => setViewMode('calendar')}
@@ -119,7 +123,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
             }`}
           >
             <CalendarIcon className="w-3.5 h-3.5" />
-            Calendar View
+            {t.workOrders.views.calendar[isAr ? 'ar' : 'en']}
           </button>
           <button
             onClick={() => setViewMode('workload')}
@@ -130,7 +134,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            Workload View
+            {t.workOrders.views.workload[isAr ? 'ar' : 'en']}
           </button>
           <button
             onClick={() => setViewMode('column')}
@@ -141,33 +145,33 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
             }`}
           >
             <Columns className="w-3.5 h-3.5" />
-            Column View
+            {t.workOrders.views.column[isAr ? 'ar' : 'en']}
           </button>
         </div>
 
-        {/* Right: + Work Order Split Button & Options */}
+        {/* Right: + Work Order Unified Button & Options */}
         <div className="flex items-center gap-2 relative">
           <button 
             onClick={() => setShowMoreMenu(!showMoreMenu)}
-            title="More Options"
+            title={isAr ? 'خيارات إضافية' : 'More Options'}
             className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 rounded-xl transition-colors cursor-pointer"
           >
             <MoreVertical className="w-4 h-4" />
           </button>
 
           {showMoreMenu && (
-            <div className="absolute right-0 top-12 w-52 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-40 animate-in fade-in zoom-in-95 duration-150">
+            <div className={`absolute ${isAr ? 'left-0' : 'right-0'} top-12 w-52 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-40 animate-in fade-in zoom-in-95 duration-150`}>
               <button
                 onClick={handleExportCSV}
-                className="w-full text-left px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-sky-50 hover:text-sky-700 flex items-center gap-2 cursor-pointer"
+                className="w-full text-start px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-sky-50 hover:text-sky-700 flex items-center gap-2 cursor-pointer"
               >
-                📥 Export to CSV
+                📥 {t.workOrders.exportCsv[isAr ? 'ar' : 'en']}
               </button>
               <button
                 onClick={() => { setShowMoreMenu(false); window.print(); }}
-                className="w-full text-left px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-sky-50 hover:text-sky-700 flex items-center gap-2 cursor-pointer"
+                className="w-full text-start px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-sky-50 hover:text-sky-700 flex items-center gap-2 cursor-pointer"
               >
-                🖨️ Print Report (PDF)
+                🖨️ {t.workOrders.printReport[isAr ? 'ar' : 'en']}
               </button>
               <button
                 onClick={() => {
@@ -176,29 +180,21 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                   setSearchQuery('');
                   setShowMoreMenu(false);
                 }}
-                className="w-full text-left px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-2 cursor-pointer border-t border-slate-100"
+                className="w-full text-start px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-2 cursor-pointer border-t border-slate-100"
               >
-                🔄 Reset Filters
+                🔄 {t.workOrders.resetFilters[isAr ? 'ar' : 'en']}
               </button>
             </div>
           )}
 
-          {/* + Work Order Button (Atlas Split Button style) */}
-          <div className="inline-flex rounded-xl shadow-md shadow-sky-500/20">
-            <button
-              onClick={onOpenCreateModal}
-              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-600 hover:to-teal-600 text-white text-xs font-bold rounded-l-xl transition-all cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              Work Order
-            </button>
-            <button
-              onClick={onOpenCreateModal}
-              className="px-2 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-r-xl border-l border-sky-400/30 transition-colors cursor-pointer"
-            >
-              <ChevronDown className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          {/* Unified Solid Primary Button (+ Work Order) - No broken split */}
+          <button
+            onClick={onOpenCreateModal}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-600 via-sky-500 to-teal-500 hover:from-sky-500 hover:to-teal-400 text-white text-xs font-bold rounded-xl shadow-md shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{t.workOrders.newWorkOrder[isAr ? 'ar' : 'en']}</span>
+          </button>
         </div>
       </div>
 
@@ -235,24 +231,25 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
               className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer"
             >
               <span className="text-sky-600">📶</span>
-              <span>Priority: {selectedPriorityFilter === 'ALL' ? 'None, Low, Medium, High' : selectedPriorityFilter}</span>
+              <span>{isAr ? 'الأولوية:' : 'Priority:'} {selectedPriorityFilter === 'ALL' ? (isAr ? 'الكل' : 'All') : selectedPriorityFilter}</span>
               <ChevronDown className="w-3 h-3 text-slate-400" />
             </button>
             {showPriorityFilterMenu && (
-              <div className="absolute left-0 mt-1.5 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-30 text-xs">
+              <div className={`absolute ${isAr ? 'right-0' : 'left-0'} mt-1.5 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-30 text-xs`}>
                 <button
                   onClick={() => { setSelectedPriorityFilter('ALL'); setShowPriorityFilterMenu(false); setCurrentPage(1); }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-slate-50 font-medium text-slate-700 cursor-pointer"
+                  className="w-full text-start px-3 py-1.5 hover:bg-slate-50 font-medium text-slate-700 cursor-pointer"
                 >
-                  All Priorities
+                  {isAr ? 'جميع الأولويات' : 'All Priorities'}
                 </button>
-                {['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].map(p => (
+                {(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as Priority[]).map(p => (
                   <button
                     key={p}
                     onClick={() => { setSelectedPriorityFilter(p); setShowPriorityFilterMenu(false); setCurrentPage(1); }}
-                    className="w-full text-left px-3 py-1.5 hover:bg-slate-50 font-medium text-slate-700 cursor-pointer"
+                    className="w-full text-start px-3 py-1.5 hover:bg-slate-50 font-medium text-slate-700 cursor-pointer flex items-center justify-between"
                   >
-                    {p}
+                    <span>{p}</span>
+                    <PriorityBadge priority={p} language={language} />
                   </button>
                 ))}
               </div>
@@ -269,39 +266,40 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
               className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer"
             >
               <span className="w-2.5 h-2.5 rounded-full border-2 border-sky-500" />
-              <span>Status: {selectedStatusFilter === 'ALL' ? 'Open, In Progress, On Hold' : selectedStatusFilter}</span>
+              <span>{isAr ? 'الحالة:' : 'Status:'} {selectedStatusFilter === 'ALL' ? (isAr ? 'الكل' : 'All') : selectedStatusFilter}</span>
               <ChevronDown className="w-3 h-3 text-slate-400" />
             </button>
             {showStatusFilterMenu && (
-              <div className="absolute left-0 mt-1.5 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-30 text-xs">
+              <div className={`absolute ${isAr ? 'right-0' : 'left-0'} mt-1.5 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-30 text-xs`}>
                 <button
                   onClick={() => { setSelectedStatusFilter('ALL'); setShowStatusFilterMenu(false); setCurrentPage(1); }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-slate-50 font-medium text-slate-700 cursor-pointer"
+                  className="w-full text-start px-3 py-1.5 hover:bg-slate-50 font-medium text-slate-700 cursor-pointer"
                 >
-                  All Statuses
+                  {isAr ? 'جميع الحالات' : 'All Statuses'}
                 </button>
-                {['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED'].map(s => (
+                {(['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED'] as WorkOrderStatus[]).map(s => (
                   <button
                     key={s}
                     onClick={() => { setSelectedStatusFilter(s); setShowStatusFilterMenu(false); setCurrentPage(1); }}
-                    className="w-full text-left px-3 py-1.5 hover:bg-slate-50 font-medium text-slate-700 cursor-pointer"
+                    className="w-full text-start px-3 py-1.5 hover:bg-slate-50 font-medium text-slate-700 cursor-pointer flex items-center justify-between"
                   >
-                    {s}
+                    <span>{s}</span>
+                    <StatusBadge status={s} language={language} />
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Search Box */}
+          {/* Search Box with correct RTL icon and padding */}
           <div className="flex-1 min-w-[200px] max-w-md relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5" />
+            <Search className={`w-4 h-4 text-slate-400 absolute ${isAr ? 'right-3.5' : 'left-3.5'} top-2.5`} />
             <input
               type="text"
-              placeholder="Search work orders, assets, locations..."
+              placeholder={t.workOrders.searchPlaceholder[isAr ? 'ar' : 'en']}
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-              className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
+              className={`w-full ${isAr ? 'pr-9 pl-4' : 'pl-9 pr-4'} py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs`}
             />
           </div>
         </div>
@@ -312,26 +310,26 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
         {viewMode === 'list' && (
           <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden flex flex-col">
             <div className="overflow-x-auto flex-1">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-start border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider select-none">
-                    <th className="py-3 px-4 w-24">ID</th>
-                    <th className="py-3 px-4 w-32">Status</th>
-                    <th className="py-3 px-4 min-w-[180px]">Title</th>
-                    <th className="py-3 px-4 w-24">Priority</th>
-                    <th className="py-3 px-4 min-w-[220px]">Description</th>
-                    <th className="py-3 px-4 w-32">Assigned To</th>
-                    <th className="py-3 px-4 min-w-[140px]">Location Name</th>
-                    <th className="py-3 px-4 min-w-[160px]">Location Address</th>
-                    <th className="py-3 px-4 w-28">Category</th>
-                    <th className="py-3 px-4 w-32">Asset</th>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider select-none text-start">
+                    <th className="py-3 px-4 w-24 text-start">{t.workOrders.columns.id[isAr ? 'ar' : 'en']}</th>
+                    <th className="py-3 px-4 w-32 text-start">{t.workOrders.columns.status[isAr ? 'ar' : 'en']}</th>
+                    <th className="py-3 px-4 min-w-[180px] text-start">{t.workOrders.columns.title[isAr ? 'ar' : 'en']}</th>
+                    <th className="py-3 px-4 w-24 text-start">{t.workOrders.columns.priority[isAr ? 'ar' : 'en']}</th>
+                    <th className="py-3 px-4 min-w-[220px] text-start">{t.workOrders.columns.description[isAr ? 'ar' : 'en']}</th>
+                    <th className="py-3 px-4 w-32 text-start">{t.workOrders.columns.assignedTo[isAr ? 'ar' : 'en']}</th>
+                    <th className="py-3 px-4 min-w-[140px] text-start">{t.workOrders.columns.locationName[isAr ? 'ar' : 'en']}</th>
+                    <th className="py-3 px-4 min-w-[160px] text-start">{t.workOrders.columns.locationAddress[isAr ? 'ar' : 'en']}</th>
+                    <th className="py-3 px-4 w-28 text-start">{t.workOrders.columns.category[isAr ? 'ar' : 'en']}</th>
+                    <th className="py-3 px-4 w-32 text-start">{t.workOrders.columns.asset[isAr ? 'ar' : 'en']}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
+                <tbody className="divide-y divide-slate-100 text-xs text-slate-700 text-start">
                   {paginatedOrders.length === 0 ? (
                     <tr>
                       <td colSpan={10} className="py-12 text-center text-slate-400">
-                        No work orders found matching your filter criteria.
+                        {isAr ? 'لم يتم العثور على أوامر عمل تطابق معايير البحث.' : 'No work orders found matching your filter criteria.'}
                       </td>
                     </tr>
                   ) : (
@@ -341,41 +339,41 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                         onClick={() => onSelectWorkOrder(wo)}
                         className="hover:bg-sky-50/40 transition-colors cursor-pointer group"
                       >
-                        <td className="py-3.5 px-4 font-semibold text-slate-900 group-hover:text-sky-600">
+                        <td className="py-3.5 px-4 font-semibold text-slate-900 group-hover:text-sky-600 text-start">
                           {wo.id}
                         </td>
-                        <td className="py-3.5 px-4">
-                          <StatusBadge status={wo.status} />
+                        <td className="py-3.5 px-4 text-start">
+                          <StatusBadge status={wo.status} language={language} />
                         </td>
-                        <td className="py-3.5 px-4 font-bold text-slate-900">
+                        <td className="py-3.5 px-4 font-bold text-slate-900 text-start">
                           {wo.title}
                         </td>
-                        <td className="py-3.5 px-4">
-                          <PriorityBadge priority={wo.priority} />
+                        <td className="py-3.5 px-4 text-start">
+                          <PriorityBadge priority={wo.priority} language={language} />
                         </td>
-                        <td className="py-3.5 px-4 text-slate-500 max-w-xs truncate">
+                        <td className="py-3.5 px-4 text-slate-500 max-w-xs truncate text-start">
                           {wo.description}
                         </td>
-                        <td className="py-3.5 px-4">
+                        <td className="py-3.5 px-4 text-start">
                           <div className="flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center ring-1 ring-slate-300">
+                            <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center ring-1 ring-slate-300 shrink-0">
                               {wo.assignedToAvatar || 'O'}
                             </span>
                             <span className="truncate">{typeof wo.assignedToName === 'object' ? (wo.assignedToName as any)?.name : (wo.assignedToName || 'Technician')}</span>
                           </div>
                         </td>
-                        <td className="py-3.5 px-4 text-slate-700">
+                        <td className="py-3.5 px-4 text-slate-700 text-start">
                           {wo.locationName}
                         </td>
-                        <td className="py-3.5 px-4 text-slate-400 truncate max-w-xs">
+                        <td className="py-3.5 px-4 text-slate-400 truncate max-w-xs text-start">
                           {wo.locationAddress || 'N/A'}
                         </td>
-                        <td className="py-3.5 px-4">
+                        <td className="py-3.5 px-4 text-start">
                           <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700">
                             {typeof wo.category === 'object' ? (wo.category as any)?.name || 'General' : (wo.category || 'General')}
                           </span>
                         </td>
-                        <td className="py-3.5 px-4 font-medium text-sky-600">
+                        <td className="py-3.5 px-4 font-medium text-sky-600 text-start">
                           {wo.assetName}
                         </td>
                       </tr>
@@ -385,10 +383,10 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
               </table>
             </div>
 
-            {/* Pagination Controls (Matching Atlas) */}
+            {/* Pagination Controls (Bilingual & RTL Aware) */}
             <div className="px-6 py-3 bg-white border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
               <div className="flex items-center gap-2">
-                <span>Rows per page:</span>
+                <span>{isAr ? 'الصفوف بالصفحة:' : 'Rows per page:'}</span>
                 <select
                   value={rowsPerPage}
                   onChange={(e) => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }}
@@ -403,43 +401,43 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
 
               <div className="flex items-center gap-4">
                 <span>
-                  {filteredOrders.length === 0 ? '0-0 of 0' : `${startIndex + 1}-${Math.min(startIndex + rowsPerPage, filteredOrders.length)} of ${filteredOrders.length}`}
+                  {filteredOrders.length === 0 ? '0-0 of 0' : `${startIndex + 1}-${Math.min(startIndex + rowsPerPage, filteredOrders.length)} ${isAr ? 'من' : 'of'} ${filteredOrders.length}`}
                 </span>
                 <div className="flex items-center gap-1">
                   <button 
                     onClick={() => setCurrentPage(1)}
                     disabled={currentPage <= 1}
-                    title="First Page"
-                    className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                    title={isAr ? 'الصفحة الأولى' : 'First Page'}
+                    className="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
                   >
-                    <ChevronsLeft className="w-4 h-4" />
+                    {isAr ? <ChevronsRight className="w-4 h-4" /> : <ChevronsLeft className="w-4 h-4" />}
                   </button>
                   <button 
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                     disabled={currentPage <= 1}
-                    title="Previous Page"
-                    className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                    title={isAr ? 'الصفحة السابقة' : 'Previous Page'}
+                    className="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    {isAr ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
                   </button>
                   <span className="px-2 font-bold text-slate-700">
-                    Page {currentPage} of {totalPages}
+                    {isAr ? `صفحة ${currentPage} من ${totalPages}` : `Page ${currentPage} of ${totalPages}`}
                   </span>
                   <button 
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                     disabled={currentPage >= totalPages}
-                    title="Next Page"
-                    className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                    title={isAr ? 'الصفحة التالية' : 'Next Page'}
+                    className="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    {isAr ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </button>
                   <button 
                     onClick={() => setCurrentPage(totalPages)}
                     disabled={currentPage >= totalPages}
-                    title="Last Page"
-                    className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                    title={isAr ? 'الصفحة الأخيرة' : 'Last Page'}
+                    className="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
                   >
-                    <ChevronsRight className="w-4 h-4" />
+                    {isAr ? <ChevronsLeft className="w-4 h-4" /> : <ChevronsRight className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -556,7 +554,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
         <div className="mx-6 mb-4 p-3 bg-sky-50 border border-sky-200 rounded-xl flex items-center justify-between text-xs text-sky-800 shadow-2xs">
           <div className="flex items-center gap-2">
             <Info className="w-4 h-4 text-sky-600 shrink-0" />
-            <span>You can delete demo data from General Settings at any time.</span>
+            <span>{isAr ? 'يمكنك مسح أو تعديل البيانات التجريبية من شاشة الإعدادات في أي وقت.' : 'You can delete demo data from General Settings at any time.'}</span>
           </div>
           <button 
             onClick={() => setShowBanner(false)}

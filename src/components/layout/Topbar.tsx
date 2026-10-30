@@ -22,6 +22,7 @@ import { useAuth, DEMO_USERS, UserRole } from '../../context/AuthContext';
 import { VoiceCommandModal } from '../voice/VoiceCommandModal';
 import { api } from '../../services/api';
 import { SubscriptionInfo } from '../../types/cmms';
+import { t, isArabicLang } from '../../utils/translations';
 
 interface TopbarProps {
   currentRoute: NavRoute;
@@ -99,12 +100,16 @@ export const Topbar: React.FC<TopbarProps> = ({
     REQUESTER: 'bg-amber-100 text-amber-700 border-amber-200'
   }[currentUser?.role || 'ADMINISTRATOR'];
 
+  const isAr = isArabicLang(language);
+
   const roleNameLabel = {
-    ADMINISTRATOR: 'System Administrator',
-    MANAGER: 'Operations Manager',
-    TECHNICIAN: 'Field Technician',
-    REQUESTER: 'Plant Operator / Requester'
+    ADMINISTRATOR: isAr ? 'مدير النظام' : 'System Administrator',
+    MANAGER: isAr ? 'مدير العمليات' : 'Operations Manager',
+    TECHNICIAN: isAr ? 'فني الميدان' : 'Field Technician',
+    REQUESTER: isAr ? 'مشغّل / مقدم بلاغ' : 'Plant Operator / Requester'
   }[currentUser?.role || 'ADMINISTRATOR'];
+
+  const currentViewTitle = t.routes[currentRoute]?.[isAr ? 'ar' : 'en'] || ROUTE_TITLES[currentRoute] || 'NEX CMMS';
 
   return (
     <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-20 shrink-0 select-none">
@@ -118,20 +123,20 @@ export const Topbar: React.FC<TopbarProps> = ({
           <Menu className="w-5 h-5" />
         </button>
         <h1 className="text-base font-bold text-slate-800 tracking-tight flex items-center gap-2">
-          <span>{ROUTE_TITLES[currentRoute] || 'NEX CMMS'}</span>
+          <span>{currentViewTitle}</span>
           <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-sky-50 text-sky-600 border border-sky-100">
-            Enterprise Live
+            {isAr ? 'النسخة الحية' : 'Enterprise Live'}
           </span>
         </h1>
       </div>
 
       {/* Right section: Quick Role Switcher, Notifications, and Profile */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         {/* Quick Demo Role Switcher for stakeholders & testers */}
-        <div className="hidden md:flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1.5 flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-amber-500" />
-            Role:
+            {isAr ? 'الدور:' : 'Role:'}
           </span>
           <button
             onClick={() => quickSwitchRole('ADMINISTRATOR')}
@@ -141,7 +146,7 @@ export const Topbar: React.FC<TopbarProps> = ({
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            🛡️ Admin
+            🛡️ {isAr ? 'المشرف' : 'Admin'}
           </button>
           <button
             onClick={() => quickSwitchRole('TECHNICIAN')}
@@ -151,7 +156,7 @@ export const Topbar: React.FC<TopbarProps> = ({
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            🔧 Technician
+            🔧 {isAr ? 'الفني' : 'Technician'}
           </button>
           <button
             onClick={() => quickSwitchRole('REQUESTER')}
@@ -161,7 +166,7 @@ export const Topbar: React.FC<TopbarProps> = ({
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            📋 Operator
+            📋 {isAr ? 'المشغل' : 'Operator'}
           </button>
         </div>
 
@@ -171,11 +176,11 @@ export const Topbar: React.FC<TopbarProps> = ({
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
             <span className="font-bold">
               {subscription.subscription.tier === 'HOSPITAL_FACTORY' 
-                ? 'باقة المستشفيات والمصانع' 
+                ? (isAr ? 'باقة المستشفيات والمصانع' : 'Hospital & Factory') 
                 : subscription.subscription.tier}
             </span>
             <span className="text-[10px] font-mono text-emerald-700 bg-emerald-100/70 px-1.5 py-0.5 rounded">
-              {subscription.usage.assets.current} / {subscription.usage.assets.max} أصل
+              {subscription.usage.assets.current} / {subscription.usage.assets.max} {isAr ? 'أصل' : 'Assets'}
             </span>
           </div>
         )}
@@ -185,25 +190,39 @@ export const Topbar: React.FC<TopbarProps> = ({
           type="button"
           onClick={() => setShowVoiceModal(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white text-xs font-bold shadow-sm shadow-sky-500/20 transition-all cursor-pointer"
-          title="الإدخال الصوتي الذكي (Voice-to-Action)"
+          title={isAr ? 'الإدخال الصوتي الذكي (Voice-to-Action)' : 'Smart Voice Action'}
         >
           <Mic className="w-3.5 h-3.5 text-white animate-pulse" />
-          <span className="hidden sm:inline">أمر صوتي</span>
+          <span className="hidden sm:inline">{isAr ? 'أمر صوتي' : 'Voice Action'}</span>
         </button>
 
-        {/* Bilingual AR/EN Switcher */}
-        <button
-          type="button"
-          onClick={() => {
-            const isAr = language === 'Arabic' || language === 'ar' || language === 'العربية';
-            onToggleLanguage?.(isAr ? 'English' : 'Arabic');
-          }}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-all cursor-pointer"
-          title="تبديل اللغة (Toggle Arabic / English)"
-        >
-          <Globe className="w-3.5 h-3.5 text-sky-600" />
-          <span>{(language === 'Arabic' || language === 'ar' || language === 'العربية') ? 'English' : 'العربية'}</span>
-        </button>
+        {/* High-Contrast Segmented Language Switcher (AR / EN) */}
+        <div className="flex items-center p-0.5 bg-slate-100 rounded-xl border border-slate-200 text-xs font-bold shadow-2xs">
+          <button
+            type="button"
+            onClick={() => onToggleLanguage?.('Arabic')}
+            className={`px-2.5 py-1 rounded-lg text-xs transition-all cursor-pointer ${
+              isAr
+                ? 'bg-white text-sky-700 shadow-xs border border-slate-200/90 font-extrabold'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+            title="التحويل للغة العربية"
+          >
+            العربية
+          </button>
+          <button
+            type="button"
+            onClick={() => onToggleLanguage?.('English')}
+            className={`px-2.5 py-1 rounded-lg text-xs transition-all cursor-pointer ${
+              !isAr
+                ? 'bg-white text-sky-700 shadow-xs border border-slate-200/90 font-extrabold'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+            title="Switch to English"
+          >
+            English
+          </button>
+        </div>
 
         {/* Notifications Icon Button */}
         <div className="relative">
@@ -223,14 +242,14 @@ export const Topbar: React.FC<TopbarProps> = ({
 
           {/* Notifications Dropdown */}
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className={`absolute ${isAr ? 'left-0' : 'right-0'} mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150`}>
               <div className="flex items-center justify-between px-4 py-2 border-b border-slate-100">
-                <span className="font-semibold text-sm text-slate-900">Notifications</span>
+                <span className="font-semibold text-sm text-slate-900">{isAr ? 'الإشعارات' : 'Notifications'}</span>
                 <button 
                   onClick={markAllRead}
                   className="text-xs text-sky-600 hover:text-sky-700 font-medium cursor-pointer"
                 >
-                  Mark all as read
+                  {isAr ? 'تحديد الكل كمقروء' : 'Mark all as read'}
                 </button>
               </div>
               <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto">
@@ -276,7 +295,7 @@ export const Topbar: React.FC<TopbarProps> = ({
 
           {/* User Menu Modal / Dropdown */}
           {showUserMenu && (
-            <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className={`absolute ${isAr ? 'left-0' : 'right-0'} mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150`}>
               <div className="px-4 py-3 border-b border-slate-100">
                 <p className="text-sm font-bold text-slate-900">{currentUser?.name}</p>
                 <p className="text-xs text-slate-500 truncate">{currentUser?.email}</p>
@@ -285,14 +304,16 @@ export const Topbar: React.FC<TopbarProps> = ({
                     <ShieldCheck className="w-3 h-3" />
                     {roleNameLabel}
                   </span>
-                  <span className="text-[11px] text-slate-500">Hourly: ${currentUser?.hourlyRate || 0}/h</span>
+                  <span className="text-[11px] text-slate-500">
+                    {isAr ? `الأجر بالساعة: $${currentUser?.hourlyRate || 0}/س` : `Hourly: $${currentUser?.hourlyRate || 0}/h`}
+                  </span>
                 </div>
               </div>
 
               {/* Role Switcher in dropdown */}
               <div className="px-4 py-2 border-b border-slate-100">
                 <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
-                  Switch Demo Account:
+                  {isAr ? 'تبديل الحساب التجريبي:' : 'Switch Demo Account:'}
                 </span>
                 <div className="grid grid-cols-3 gap-1">
                   {DEMO_USERS.slice(0, 3).map((demo) => (
@@ -308,7 +329,7 @@ export const Topbar: React.FC<TopbarProps> = ({
                           : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                       }`}
                     >
-                      {demo.role === 'ADMINISTRATOR' ? 'Admin' : demo.role === 'TECHNICIAN' ? 'Tech' : 'Operator'}
+                      {demo.role === 'ADMINISTRATOR' ? (isAr ? 'المشرف' : 'Admin') : demo.role === 'TECHNICIAN' ? (isAr ? 'الفني' : 'Tech') : (isAr ? 'المشغل' : 'Operator')}
                     </button>
                   ))}
                 </div>
@@ -323,7 +344,7 @@ export const Topbar: React.FC<TopbarProps> = ({
                   className="w-full text-left flex items-center gap-2.5 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 font-semibold cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
-                  Sign Out
+                  {isAr ? 'تسجيل الخروج' : 'Sign Out'}
                 </button>
               </div>
             </div>

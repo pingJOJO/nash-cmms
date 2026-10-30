@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '../../context/AuthContext';
+import { t, isArabicLang } from '../../utils/translations';
 
 export type NavRoute = 
   | 'work-orders'
@@ -56,6 +57,7 @@ interface SidebarProps {
   workOrderCount: number;
   requestCount: number;
   collapsed: boolean;
+  language?: string;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -67,8 +69,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectPartsSubTab,
   workOrderCount,
   requestCount,
-  collapsed
+  collapsed,
+  language
 }) => {
+  const isAr = isArabicLang(language);
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({
     statistics: true,
     parts: true,
@@ -91,7 +95,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       <aside 
-        className={`h-screen flex flex-col bg-[#090D16] border-r border-[#1E293B] text-slate-300 transition-all duration-300 select-none z-30 sticky top-0 ${
+        className={`h-screen flex flex-col bg-[#090D16] ${isAr ? 'border-l' : 'border-r'} border-[#1E293B] text-slate-300 transition-all duration-300 select-none z-30 sticky top-0 ${
           collapsed ? 'w-20' : 'w-64'
         }`}
       >
@@ -106,7 +110,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <span className="font-extrabold text-white text-base tracking-wider">NEX</span>
                 <span className="text-sky-400 text-xs font-semibold px-1.5 py-0.5 bg-sky-950/80 rounded border border-sky-800/50">CMMS</span>
               </div>
-              <span className="text-[11px] text-slate-400 truncate">Enterprise Operations</span>
+              <span className="text-[11px] text-slate-400 truncate">
+                {t.sidebar.brandSubtitle[isAr ? 'ar' : 'en']}
+              </span>
             </div>
           )}
         </div>
@@ -114,14 +120,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Trial / Business Plan Banner */}
         {!collapsed && (
           <div className="m-3 p-3.5 rounded-xl bg-gradient-to-br from-sky-500/15 via-teal-500/10 to-indigo-500/15 border border-sky-500/30 text-white relative overflow-hidden">
-            <div className="text-xs font-semibold text-sky-200">Your trial ends in 15 days</div>
-            <div className="text-[11px] text-slate-300 mt-0.5">You are on the Business plan</div>
+            <div className="text-xs font-semibold text-sky-200">
+              {t.sidebar.trialNotice[isAr ? 'ar' : 'en']}
+            </div>
+            <div className="text-[11px] text-slate-300 mt-0.5">
+              {t.sidebar.businessPlan[isAr ? 'ar' : 'en']}
+            </div>
             <button 
               onClick={() => setShowUpgradeModal(true)}
               className="mt-2.5 w-full py-1.5 px-3 bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-400 hover:to-teal-400 text-slate-950 font-bold text-xs rounded-lg shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              Upgrade Plan
+              {t.sidebar.upgradePlan[isAr ? 'ar' : 'en']}
             </button>
           </div>
         )}
@@ -136,10 +146,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? 'bg-sky-500 text-white font-semibold shadow-md shadow-sky-500/25'
                 : 'text-slate-300 hover:bg-[#151D2E] hover:text-white'
             }`}
-            title="Work Orders"
+            title={t.routes['work-orders'][isAr ? 'ar' : 'en']}
           >
             <ClipboardList className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="flex-1 text-left truncate">Work Orders</span>}
+            {!collapsed && <span className="flex-1 text-start truncate">{t.routes['work-orders'][isAr ? 'ar' : 'en']}</span>}
             {!collapsed && workOrderCount > 0 && (
               <span className={`px-2 py-0.5 text-[11px] rounded-full font-bold ${
                 currentRoute === 'work-orders' ? 'bg-sky-950 text-white' : 'bg-sky-500 text-white'
@@ -157,10 +167,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? 'bg-sky-500 text-white font-semibold shadow-md shadow-sky-500/25'
                 : 'text-slate-300 hover:bg-[#151D2E] hover:text-white'
             }`}
-            title="Preventive Maintenance"
+            title={t.routes['preventive-maintenances'][isAr ? 'ar' : 'en']}
           >
             <CalendarClock className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="flex-1 text-left truncate">Preventive Maintenance</span>}
+            {!collapsed && <span className="flex-1 text-start truncate">{t.routes['preventive-maintenances'][isAr ? 'ar' : 'en']}</span>}
           </button>
 
           {/* Statistics & Sub-branches */}
@@ -177,11 +187,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onNavigate('statistics');
                   if (!collapsed) setExpandedMenus(prev => ({ ...prev, statistics: true }));
                 }}
-                className="flex items-center gap-3 flex-1 text-left cursor-pointer"
-                title="Statistics"
+                className="flex items-center gap-3 flex-1 text-start cursor-pointer"
+                title={t.routes['statistics'][isAr ? 'ar' : 'en']}
               >
                 <BarChart3 className="w-4 h-4 shrink-0" />
-                {!collapsed && <span className="flex-1 text-left truncate">Statistics</span>}
+                {!collapsed && <span className="flex-1 text-start truncate">{t.routes['statistics'][isAr ? 'ar' : 'en']}</span>}
               </button>
               {!collapsed && (
                 <button
@@ -198,48 +208,48 @@ export const Sidebar: React.FC<SidebarProps> = ({
               )}
             </div>
             {!collapsed && expandedMenus.statistics && (
-              <div className="ml-7 pl-3 border-l border-slate-700/60 my-1 space-y-1">
+              <div className={`${isAr ? 'mr-7 pr-3 border-r' : 'ml-7 pl-3 border-l'} border-slate-700/60 my-1 space-y-1`}>
                 <button 
                   onClick={() => {
                     onNavigate('statistics');
                     onSelectAnalyticsSubTab?.('work-orders');
                   }}
-                  className={`w-full text-left py-1.5 px-2.5 text-xs rounded-lg cursor-pointer transition-all flex items-center gap-2 ${
+                  className={`w-full text-start py-1.5 px-2.5 text-xs rounded-lg cursor-pointer transition-all flex items-center gap-2 ${
                     currentRoute === 'statistics' && analyticsSubTab === 'work-orders'
                       ? 'bg-sky-500/25 text-sky-300 font-bold border-l-2 border-sky-400'
                       : 'text-slate-400 hover:text-white hover:bg-[#151D2E]'
                   }`}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-current opacity-75" />
-                  Work Orders
+                  {t.sidebar.subtabs.workOrders[isAr ? 'ar' : 'en']}
                 </button>
                 <button 
                   onClick={() => {
                     onNavigate('statistics');
                     onSelectAnalyticsSubTab?.('assets-pms');
                   }}
-                  className={`w-full text-left py-1.5 px-2.5 text-xs rounded-lg cursor-pointer transition-all flex items-center gap-2 ${
+                  className={`w-full text-start py-1.5 px-2.5 text-xs rounded-lg cursor-pointer transition-all flex items-center gap-2 ${
                     currentRoute === 'statistics' && analyticsSubTab === 'assets-pms'
                       ? 'bg-sky-500/25 text-sky-300 font-bold border-l-2 border-sky-400'
                       : 'text-slate-400 hover:text-white hover:bg-[#151D2E]'
                   }`}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-current opacity-75" />
-                  Assets & PMs
+                  {t.sidebar.subtabs.assetsPms[isAr ? 'ar' : 'en']}
                 </button>
                 <button 
                   onClick={() => {
                     onNavigate('statistics');
                     onSelectAnalyticsSubTab?.('cost-time');
                   }}
-                  className={`w-full text-left py-1.5 px-2.5 text-xs rounded-lg cursor-pointer transition-all flex items-center gap-2 ${
+                  className={`w-full text-start py-1.5 px-2.5 text-xs rounded-lg cursor-pointer transition-all flex items-center gap-2 ${
                     currentRoute === 'statistics' && analyticsSubTab === 'cost-time'
                       ? 'bg-sky-500/25 text-sky-300 font-bold border-l-2 border-sky-400'
                       : 'text-slate-400 hover:text-white hover:bg-[#151D2E]'
                   }`}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-current opacity-75" />
-                  Cost & Time
+                  {t.sidebar.subtabs.costTime[isAr ? 'ar' : 'en']}
                 </button>
               </div>
             )}
@@ -253,10 +263,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? 'bg-sky-500 text-white font-semibold shadow-md shadow-sky-500/25'
                 : 'text-slate-300 hover:bg-[#151D2E] hover:text-white'
             }`}
-            title="Requests"
+            title={t.routes['requests'][isAr ? 'ar' : 'en']}
           >
             <Inbox className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="flex-1 text-left truncate">Requests</span>}
+            {!collapsed && <span className="flex-1 text-start truncate">{t.routes['requests'][isAr ? 'ar' : 'en']}</span>}
             {!collapsed && requestCount > 0 && (
               <span className={`px-2 py-0.5 text-[11px] rounded-full font-bold ${
                 currentRoute === 'requests' ? 'bg-sky-950 text-white' : 'bg-sky-500 text-white'
@@ -274,10 +284,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? 'bg-sky-500 text-white font-semibold shadow-md shadow-sky-500/25'
                 : 'text-slate-300 hover:bg-[#151D2E] hover:text-white'
             }`}
-            title="Assets"
+            title={t.routes['assets'][isAr ? 'ar' : 'en']}
           >
             <Box className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="flex-1 text-left truncate">Assets</span>}
+            {!collapsed && <span className="flex-1 text-start truncate">{t.routes['assets'][isAr ? 'ar' : 'en']}</span>}
           </button>
 
           {/* Locations */}
@@ -288,10 +298,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? 'bg-sky-500 text-white font-semibold shadow-md shadow-sky-500/25'
                 : 'text-slate-300 hover:bg-[#151D2E] hover:text-white'
             }`}
-            title="Locations"
+            title={t.routes['locations'][isAr ? 'ar' : 'en']}
           >
             <MapPin className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="flex-1 text-left truncate">Locations</span>}
+            {!collapsed && <span className="flex-1 text-start truncate">{t.routes['locations'][isAr ? 'ar' : 'en']}</span>}
           </button>
 
           {/* Parts / Inventory & Sub-branches */}
@@ -309,11 +319,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onSelectPartsSubTab?.('parts');
                   if (!collapsed) setExpandedMenus(prev => ({ ...prev, parts: true }));
                 }}
-                className="flex items-center gap-3 flex-1 text-left cursor-pointer"
-                title="Parts & Inventory"
+                className="flex items-center gap-3 flex-1 text-start cursor-pointer"
+                title={t.routes['parts'][isAr ? 'ar' : 'en']}
               >
                 <Boxes className="w-4 h-4 shrink-0" />
-                {!collapsed && <span className="flex-1 text-left truncate">Parts/Inventory</span>}
+                {!collapsed && <span className="flex-1 text-start truncate">{t.routes['parts'][isAr ? 'ar' : 'en']}</span>}
               </button>
               {!collapsed && (
                 <button
@@ -330,34 +340,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
               )}
             </div>
             {!collapsed && expandedMenus.parts && (
-              <div className="ml-7 pl-3 border-l border-slate-700/60 my-1 space-y-1">
+              <div className={`${isAr ? 'mr-7 pr-3 border-r' : 'ml-7 pl-3 border-l'} border-slate-700/60 my-1 space-y-1`}>
                 <button 
                   onClick={() => {
                     onNavigate('parts');
                     onSelectPartsSubTab?.('parts');
                   }}
-                  className={`w-full text-left py-1.5 px-2.5 text-xs rounded-lg cursor-pointer transition-all flex items-center gap-2 ${
+                  className={`w-full text-start py-1.5 px-2.5 text-xs rounded-lg cursor-pointer transition-all flex items-center gap-2 ${
                     currentRoute === 'parts' && partsSubTab === 'parts'
                       ? 'bg-sky-500/25 text-sky-300 font-bold border-l-2 border-sky-400'
                       : 'text-slate-400 hover:text-white hover:bg-[#151D2E]'
                   }`}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-current opacity-75" />
-                  Parts
+                  {t.sidebar.subtabs.parts[isAr ? 'ar' : 'en']}
                 </button>
                 <button 
                   onClick={() => {
                     onNavigate('parts');
                     onSelectPartsSubTab?.('sets');
                   }}
-                  className={`w-full text-left py-1.5 px-2.5 text-xs rounded-lg cursor-pointer transition-all flex items-center gap-2 ${
+                  className={`w-full text-start py-1.5 px-2.5 text-xs rounded-lg cursor-pointer transition-all flex items-center gap-2 ${
                     currentRoute === 'parts' && partsSubTab === 'sets'
                       ? 'bg-sky-500/25 text-sky-300 font-bold border-l-2 border-sky-400'
                       : 'text-slate-400 hover:text-white hover:bg-[#151D2E]'
                   }`}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-current opacity-75" />
-                  Sets Of Parts
+                  {t.sidebar.subtabs.setsOfParts[isAr ? 'ar' : 'en']}
                 </button>
               </div>
             )}
@@ -371,10 +381,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? 'bg-sky-500 text-white font-semibold shadow-md shadow-sky-500/25'
                 : 'text-slate-300 hover:bg-[#151D2E] hover:text-white'
             }`}
-            title="Purchase Requests"
+            title={t.routes['purchase-requests'][isAr ? 'ar' : 'en']}
           >
             <FileText className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="flex-1 text-left truncate">Purchase Requests</span>}
+            {!collapsed && <span className="flex-1 text-start truncate">{t.routes['purchase-requests'][isAr ? 'ar' : 'en']}</span>}
           </button>
 
           {/* Meters */}
@@ -385,10 +395,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? 'bg-sky-500 text-white font-semibold shadow-md shadow-sky-500/25'
                 : 'text-slate-300 hover:bg-[#151D2E] hover:text-white'
             }`}
-            title="Meters"
+            title={t.routes['meters'][isAr ? 'ar' : 'en']}
           >
             <Gauge className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="flex-1 text-left truncate">Meters</span>}
+            {!collapsed && <span className="flex-1 text-start truncate">{t.routes['meters'][isAr ? 'ar' : 'en']}</span>}
           </button>
 
           {/* People & Teams */}
@@ -399,10 +409,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? 'bg-sky-500 text-white font-semibold shadow-md shadow-sky-500/25'
                 : 'text-slate-300 hover:bg-[#151D2E] hover:text-white'
             }`}
-            title="People & Teams"
+            title={t.routes['people'][isAr ? 'ar' : 'en']}
           >
             <Users className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="flex-1 text-left truncate">People & Teams</span>}
+            {!collapsed && <span className="flex-1 text-start truncate">{t.routes['people'][isAr ? 'ar' : 'en']}</span>}
           </button>
 
           {/* Vendors & Contractors */}
@@ -413,10 +423,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? 'bg-sky-500 text-white font-semibold shadow-md shadow-sky-500/25'
                 : 'text-slate-300 hover:bg-[#151D2E] hover:text-white'
             }`}
-            title="Vendors & Contractors"
+            title={t.routes['vendors'][isAr ? 'ar' : 'en']}
           >
             <Building2 className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="flex-1 text-left truncate">Vendors & Contractors</span>}
+            {!collapsed && <span className="flex-1 text-start truncate">{t.routes['vendors'][isAr ? 'ar' : 'en']}</span>}
           </button>
 
           {/* Categories */}
@@ -427,10 +437,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? 'bg-sky-500 text-white font-semibold shadow-md shadow-sky-500/25'
                 : 'text-slate-300 hover:bg-[#151D2E] hover:text-white'
             }`}
-            title="Categories"
+            title={t.routes['categories'][isAr ? 'ar' : 'en']}
           >
             <Tags className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="flex-1 text-left truncate">Categories</span>}
+            {!collapsed && <span className="flex-1 text-start truncate">{t.routes['categories'][isAr ? 'ar' : 'en']}</span>}
           </button>
 
           {/* Files */}
@@ -441,10 +451,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? 'bg-sky-500 text-white font-semibold shadow-md shadow-sky-500/25'
                 : 'text-slate-300 hover:bg-[#151D2E] hover:text-white'
             }`}
-            title="Files"
+            title={t.routes['files'][isAr ? 'ar' : 'en']}
           >
             <FolderArchive className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="flex-1 text-left truncate">Files</span>}
+            {!collapsed && <span className="flex-1 text-start truncate">{t.routes['files'][isAr ? 'ar' : 'en']}</span>}
           </button>
 
           {/* System Settings (Direct in Navigation List) */}
@@ -454,12 +464,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                 currentRoute === 'settings'
                   ? 'bg-sky-500 text-white font-semibold shadow-md shadow-sky-500/25'
-                  : 'text-slate-300 hover:bg-[#151D2E] hover:text-white'
+                : 'text-slate-300 hover:bg-[#151D2E] hover:text-white'
               }`}
-              title="System Settings"
+              title={t.routes['settings'][isAr ? 'ar' : 'en']}
             >
               <Settings className="w-4 h-4 shrink-0" />
-              {!collapsed && <span className="flex-1 text-left truncate">System Settings</span>}
+              {!collapsed && <span className="flex-1 text-start truncate">{t.routes['settings'][isAr ? 'ar' : 'en']}</span>}
             </button>
           )}
         </nav>

@@ -582,6 +582,7 @@ function AppContent() {
         workOrderCount={workOrders.filter(w => w.status !== 'COMPLETED').length}
         requestCount={requests.length}
         collapsed={sidebarCollapsed}
+        language={settings.language}
       />
 
       {/* Main App Content Area */}
@@ -608,6 +609,7 @@ function AppContent() {
               workOrders={workOrders}
               onSelectWorkOrder={setSelectedWorkOrder}
               onOpenCreateModal={() => setIsCreateModalOpen(true)}
+              language={settings.language}
             />
           )}
 
@@ -1317,18 +1319,22 @@ function AppContent() {
       {showFloatingWidget && (
         <div 
           onClick={() => setShowOnboardingModal(true)}
-          className="fixed bottom-6 right-20 z-40 bg-white rounded-2xl p-4 shadow-xl border border-slate-200 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 cursor-pointer hover:border-sky-300 hover:shadow-2xl transition-all select-none"
+          className={`fixed bottom-6 ${isRtl ? 'left-20' : 'right-20'} z-40 bg-white rounded-2xl p-4 shadow-xl border border-slate-200 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 cursor-pointer hover:border-sky-300 hover:shadow-2xl transition-all select-none`}
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 text-white font-black flex items-center justify-center text-sm shadow-xs">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 text-white font-black flex items-center justify-center text-sm shadow-xs shrink-0">
             N
           </div>
-          <div className="text-left pr-2">
+          <div className={`text-start ${isRtl ? 'pl-2' : 'pr-2'}`}>
             <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-              <span>Get Started with NEX CMMS</span>
-              <span className="text-[9px] bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded font-semibold">Wizard</span>
+              <span>{isRtl ? 'دليل البدء بنظام NEX CMMS' : 'Get Started with NEX CMMS'}</span>
+              <span className="text-[9px] bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded font-semibold">
+                {isRtl ? 'المساعد' : 'Wizard'}
+              </span>
             </h4>
             <p className="text-[10px] text-slate-500">
-              {onboardingTasks.filter(t => t.completed).length} of {onboardingTasks.length} tasks completed • Click to open
+              {isRtl 
+                ? `${onboardingTasks.filter(t => t.completed).length} من ${onboardingTasks.length} مهام مكتملة • اضغط للفتح`
+                : `${onboardingTasks.filter(t => t.completed).length} of ${onboardingTasks.length} tasks completed • Click to open`}
             </p>
             <div className="w-36 bg-slate-100 rounded-full h-1.5 mt-1.5 overflow-hidden">
               <div 
@@ -1343,7 +1349,7 @@ function AppContent() {
               setShowFloatingWidget(false);
             }}
             className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
-            title="Dismiss widget"
+            title={isRtl ? 'إغلاق المساعد' : 'Dismiss widget'}
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -1444,18 +1450,18 @@ function AppContent() {
       {/* Floating Chat Support Bubble */}
       <button 
         onClick={() => setShowChatModal(prev => !prev)}
-        className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white shadow-lg shadow-sky-500/30 flex items-center justify-center transition-all hover:scale-105 cursor-pointer"
-        title="Live Support & AI Maintenance Assistant"
+        className={`fixed bottom-6 ${isRtl ? 'left-6' : 'right-6'} z-40 w-12 h-12 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white shadow-lg shadow-sky-500/30 flex items-center justify-center transition-all hover:scale-105 cursor-pointer`}
+        title={isRtl ? 'الدعم الفني والمساعد الذكي' : 'Live Support & AI Maintenance Assistant'}
       >
         <MessageSquare className="w-5 h-5" />
-        <span className="absolute top-0 right-0 w-4 h-4 rounded-full bg-emerald-500 text-white font-bold text-[9px] flex items-center justify-center border-2 border-white">
+        <span className={`absolute top-0 ${isRtl ? 'left-0' : 'right-0'} w-4 h-4 rounded-full bg-emerald-500 text-white font-bold text-[9px] flex items-center justify-center border-2 border-white`}>
           ✓
         </span>
       </button>
 
       {/* Interactive AI Support Assistant Modal */}
       {showChatModal && (
-        <div className="fixed bottom-20 right-6 z-50 w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div className={`fixed bottom-20 ${isRtl ? 'left-6' : 'right-6'} z-50 w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200`}>
           {/* Chat Header */}
           <div className="bg-gradient-to-r from-sky-600 to-indigo-600 p-4 text-white flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -1463,10 +1469,10 @@ function AppContent() {
                 <Bot className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h4 className="text-xs font-bold leading-tight">NEX CMMS Assistant (AI Support)</h4>
+                <h4 className="text-xs font-bold leading-tight">{isRtl ? 'مساعد NEX CMMS الذكي' : 'NEX CMMS Assistant (AI Support)'}</h4>
                 <span className="text-[10px] text-sky-100 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Online & ready to assist
+                  {isRtl ? 'متصل وجاهز للمساعدة' : 'Online & ready to assist'}
                 </span>
               </div>
             </div>
@@ -1502,22 +1508,22 @@ function AppContent() {
           {/* Quick suggestions chips */}
           <div className="px-3 py-2 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-1.5">
             <button
-              onClick={() => handleSendChat(undefined, 'How do I create a Work Order?')}
+              onClick={() => handleSendChat(undefined, isRtl ? 'كيف أقوم بإنشاء أمر عمل جديد؟' : 'How do I create a Work Order?')}
               className="text-[10px] bg-white border border-slate-200 hover:border-sky-300 text-slate-600 px-2 py-1 rounded-lg transition-colors cursor-pointer"
             >
-              + Create Work Order
+              {isRtl ? '+ إنشاء أمر عمل' : '+ Create Work Order'}
             </button>
             <button
-              onClick={() => handleSendChat(undefined, 'How do I export CSV reports?')}
+              onClick={() => handleSendChat(undefined, isRtl ? 'كيف أصدّر التقارير بصيغة CSV؟' : 'How do I export CSV reports?')}
               className="text-[10px] bg-white border border-slate-200 hover:border-sky-300 text-slate-600 px-2 py-1 rounded-lg transition-colors cursor-pointer"
             >
-              📊 Export CSV
+              {isRtl ? '📊 تصدير كـ CSV' : '📊 Export CSV'}
             </button>
             <button
-              onClick={() => handleSendChat(undefined, 'How to trigger Preventive Maintenance?')}
+              onClick={() => handleSendChat(undefined, isRtl ? 'كيف أشغل الصيانة الوقائية الفورية؟' : 'How to trigger Preventive Maintenance?')}
               className="text-[10px] bg-white border border-slate-200 hover:border-sky-300 text-slate-600 px-2 py-1 rounded-lg transition-colors cursor-pointer"
             >
-              ⚡ PM Schedules
+              {isRtl ? '⚡ الصيانة الوقائية' : '⚡ PM Schedules'}
             </button>
           </div>
 
@@ -1525,7 +1531,7 @@ function AppContent() {
           <form onSubmit={handleSendChat} className="p-2.5 bg-white border-t border-slate-200 flex items-center gap-2">
             <input
               type="text"
-              placeholder="Type your maintenance inquiry here..."
+              placeholder={isRtl ? 'اكتب استفسارك هنا (مثال: كيف أصدّر التقرير؟)...' : 'Type your maintenance inquiry here...'}
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               className="flex-1 px-3 py-2 bg-slate-100 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-sky-500"
@@ -1533,8 +1539,9 @@ function AppContent() {
             <button
               type="submit"
               className="p-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl transition-colors cursor-pointer shadow-xs"
+              title={isRtl ? 'إرسال' : 'Send'}
             >
-              <Send className="w-4 h-4" />
+              <Send className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
             </button>
           </form>
         </div>
