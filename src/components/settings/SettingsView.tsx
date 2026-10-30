@@ -615,8 +615,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-xs text-slate-800">REST API & Webhooks</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
-                      🟢 Active
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 inline-flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                      <span>Active</span>
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-500">Endpoint: <code className="font-mono text-sky-700">/api/v1/work-orders</code></p>
@@ -625,8 +626,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-xs text-slate-800">Media & File Storage</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
-                      🟢 Active (/uploads/)
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 inline-flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                      <span>Active (/uploads/)</span>
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-500">Server: <code className="font-mono text-sky-700">Nginx Fast-Storage Bucket</code></p>
@@ -649,9 +651,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   <button
                     type="button"
                     onClick={handleTestWebhook}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5"
                   >
-                    {webhookTested ? 'Test Notification Sent! ✓' : 'Test Connection'}
+                    {webhookTested ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Test Notification Sent!</span>
+                      </>
+                    ) : (
+                      <span>Test Connection</span>
+                    )}
                   </button>
                 </div>
               </div>

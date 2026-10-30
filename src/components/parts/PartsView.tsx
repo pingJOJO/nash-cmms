@@ -401,14 +401,21 @@ export const PartsView: React.FC<PartsViewProps> = ({
                             </div>
                           </td>
                           <td className="py-3.5 px-4">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1.5 ${
                               part.abcClass === 'A_CRITICAL' ? 'bg-purple-100 text-purple-700 border border-purple-300' :
                               part.abcClass === 'B_ESSENTIAL' ? 'bg-amber-100 text-amber-700 border border-amber-300' :
                               'bg-slate-100 text-slate-700 border border-slate-300'
                             }`}>
-                              {part.abcClass === 'A_CRITICAL' ? '🔴 Class A' :
-                               part.abcClass === 'B_ESSENTIAL' ? '🟡 Class B' :
-                               '🟢 Class C'}
+                              <span className={`w-1.5 h-1.5 rounded-full ${
+                                part.abcClass === 'A_CRITICAL' ? 'bg-purple-600' :
+                                part.abcClass === 'B_ESSENTIAL' ? 'bg-amber-600' :
+                                'bg-slate-600'
+                              }`} />
+                              <span>
+                                {part.abcClass === 'A_CRITICAL' ? 'Class A' :
+                                 part.abcClass === 'B_ESSENTIAL' ? 'Class B' :
+                                 'Class C'}
+                              </span>
                             </span>
                           </td>
                           <td className="py-3.5 px-4 font-mono text-[11px] text-sky-700 font-semibold">

@@ -16,7 +16,9 @@ import {
   AlertTriangle,
   Sparkles,
   Calendar,
-  DollarSign
+  DollarSign,
+  Download,
+  X
 } from 'lucide-react';
 import { Asset, AssetStatus, RiskLevel } from '../../types/cmms';
 import { AssetStatusBadge } from '../common/Badge';
@@ -210,7 +212,8 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
                 onClick={handleExportCSV}
                 className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-sky-50 flex items-center gap-2 cursor-pointer"
               >
-                📥 Export Assets to CSV
+                <Download className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                <span>Export Assets to CSV</span>
               </button>
             </div>
           )}
@@ -259,14 +262,21 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
                       <AssetStatusBadge status={asset.status} />
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1.5 ${
                         asset.riskLevel === 'HIGH' ? 'bg-rose-100 text-rose-700 border border-rose-300' :
                         asset.riskLevel === 'MEDIUM' ? 'bg-amber-100 text-amber-700 border border-amber-300' :
                         'bg-emerald-100 text-emerald-700 border border-emerald-300'
                       }`}>
-                        {asset.riskLevel === 'HIGH' ? '🔴 HIGH' :
-                         asset.riskLevel === 'MEDIUM' ? '🟡 MED' :
-                         '🟢 LOW'}
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          asset.riskLevel === 'HIGH' ? 'bg-rose-600' :
+                          asset.riskLevel === 'MEDIUM' ? 'bg-amber-600' :
+                          'bg-emerald-600'
+                        }`} />
+                        <span>
+                          {asset.riskLevel === 'HIGH' ? 'HIGH' :
+                           asset.riskLevel === 'MEDIUM' ? 'MED' :
+                           'LOW'}
+                        </span>
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-slate-700">{getLocationName(asset)}</td>
@@ -309,7 +319,7 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
           <div className="bg-white rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl border border-slate-200 overflow-y-auto max-h-[90vh]">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <h3 className="text-base font-bold text-slate-900">Add New Equipment / Industrial Asset</h3>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-700">✕</button>
+              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer"><X className="w-4 h-4" /></button>
             </div>
 
             <form onSubmit={handleCreate} className="space-y-3.5 text-xs">
@@ -346,9 +356,9 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
                     onChange={(e) => setRiskLevel(e.target.value as RiskLevel)}
                     className="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold"
                   >
-                    <option value="HIGH">🔴 High Risk (حرج - Class A)</option>
-                    <option value="MEDIUM">🟡 Medium Risk (متوسط - Class B)</option>
-                    <option value="LOW">🟢 Low Risk (منخفض - Class C)</option>
+                    <option value="HIGH">High Risk (حرج - Class A)</option>
+                    <option value="MEDIUM">Medium Risk (متوسط - Class B)</option>
+                    <option value="LOW">Low Risk (منخفض - Class C)</option>
                   </select>
                 </div>
 
@@ -484,7 +494,7 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
                 onClick={() => setSelectedAsset(null)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 

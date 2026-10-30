@@ -151,14 +151,21 @@ export const AssetLifeFileModal: React.FC<AssetLifeFileModalProps> = ({
                   {asset ? asset.name : 'سجل حياة الجهاز (Equipment Life File)'}
                 </h2>
                 {asset?.riskLevel && (
-                  <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                  <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border inline-flex items-center gap-1.5 ${
                     asset.riskLevel === 'HIGH' ? 'bg-rose-500/20 text-rose-400 border-rose-500/40' :
                     asset.riskLevel === 'MEDIUM' ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' :
                     'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
                   }`}>
-                    {asset.riskLevel === 'HIGH' ? '🔴 عالي الخطورة (Class A)' :
-                     asset.riskLevel === 'MEDIUM' ? '🟡 متوسط الخطورة (Class B)' :
-                     '🟢 منخفض الخطورة (Class C)'}
+                    <span className={`w-1.5 h-1.5 rounded-full ${
+                      asset.riskLevel === 'HIGH' ? 'bg-rose-400' :
+                      asset.riskLevel === 'MEDIUM' ? 'bg-amber-400' :
+                      'bg-emerald-400'
+                    }`} />
+                    <span>
+                      {asset.riskLevel === 'HIGH' ? 'عالي الخطورة (Class A)' :
+                       asset.riskLevel === 'MEDIUM' ? 'متوسط الخطورة (Class B)' :
+                       'منخفض الخطورة (Class C)'}
+                    </span>
                   </span>
                 )}
               </div>

@@ -15,7 +15,8 @@ import {
   Shield,
   FileText,
   Mic,
-  Globe
+  Globe,
+  ClipboardList
 } from 'lucide-react';
 import { NavRoute } from './Sidebar';
 import { useAuth, DEMO_USERS, UserRole } from '../../context/AuthContext';
@@ -146,7 +147,10 @@ export const Topbar: React.FC<TopbarProps> = ({
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            🛡️ {isAr ? 'المشرف' : 'Admin'}
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+              <span>{isAr ? 'المشرف' : 'Admin'}</span>
+            </span>
           </button>
           <button
             onClick={() => quickSwitchRole('TECHNICIAN')}
@@ -156,7 +160,10 @@ export const Topbar: React.FC<TopbarProps> = ({
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            🔧 {isAr ? 'الفني' : 'Technician'}
+            <span className="inline-flex items-center gap-1.5">
+              <Wrench className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+              <span>{isAr ? 'الفني' : 'Technician'}</span>
+            </span>
           </button>
           <button
             onClick={() => quickSwitchRole('REQUESTER')}
@@ -166,7 +173,10 @@ export const Topbar: React.FC<TopbarProps> = ({
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            📋 {isAr ? 'المشغل' : 'Operator'}
+            <span className="inline-flex items-center gap-1.5">
+              <ClipboardList className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <span>{isAr ? 'المشغل' : 'Operator'}</span>
+            </span>
           </button>
         </div>
 

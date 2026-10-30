@@ -7,7 +7,8 @@ import {
   Plus, 
   Trash2, 
   CheckSquare, 
-  AlertCircle 
+  AlertCircle,
+  Check
 } from 'lucide-react';
 import { WorkOrder, Priority, AssetStatus } from '../../types/cmms';
 
@@ -183,7 +184,10 @@ export const CreateWorkOrderModal: React.FC<CreateWorkOrderModalProps> = ({
                 <img src={imageUrl} alt="Uploaded attachment" className="w-20 h-20 object-cover rounded-lg border border-slate-200 bg-white" />
                 <div className="flex-1 overflow-hidden">
                   <span className="text-xs font-bold text-slate-800 block truncate">Image attached successfully</span>
-                  <span className="text-[11px] text-emerald-600 block font-semibold">✓ Ready to save with work order</span>
+                  <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                    <Check className="w-3.5 h-3.5 shrink-0" />
+                    <span>Ready to save with work order</span>
+                  </span>
                 </div>
                 <button
                   type="button"

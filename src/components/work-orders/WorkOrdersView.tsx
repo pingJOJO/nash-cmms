@@ -17,7 +17,11 @@ import {
   ChevronsRight,
   Sparkles,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Download,
+  Printer,
+  RotateCcw,
+  Activity
 } from 'lucide-react';
 import { WorkOrder, WorkOrderStatus, Priority } from '../../types/cmms';
 import { PriorityBadge, StatusBadge } from '../common/Badge';
@@ -165,13 +169,15 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                 onClick={handleExportCSV}
                 className="w-full text-start px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-sky-50 hover:text-sky-700 flex items-center gap-2 cursor-pointer"
               >
-                📥 {t.workOrders.exportCsv[isAr ? 'ar' : 'en']}
+                <Download className="w-4 h-4 text-sky-600 shrink-0" />
+                <span>{t.workOrders.exportCsv[isAr ? 'ar' : 'en']}</span>
               </button>
               <button
                 onClick={() => { setShowMoreMenu(false); window.print(); }}
                 className="w-full text-start px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-sky-50 hover:text-sky-700 flex items-center gap-2 cursor-pointer"
               >
-                🖨️ {t.workOrders.printReport[isAr ? 'ar' : 'en']}
+                <Printer className="w-4 h-4 text-slate-600 shrink-0" />
+                <span>{t.workOrders.printReport[isAr ? 'ar' : 'en']}</span>
               </button>
               <button
                 onClick={() => {
@@ -182,7 +188,8 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
                 }}
                 className="w-full text-start px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-2 cursor-pointer border-t border-slate-100"
               >
-                🔄 {t.workOrders.resetFilters[isAr ? 'ar' : 'en']}
+                <RotateCcw className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>{t.workOrders.resetFilters[isAr ? 'ar' : 'en']}</span>
               </button>
             </div>
           )}
@@ -230,7 +237,7 @@ export const WorkOrdersView: React.FC<WorkOrdersViewProps> = ({
               }}
               className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer"
             >
-              <span className="text-sky-600">📶</span>
+              <Activity className="w-3.5 h-3.5 text-sky-600" />
               <span>{isAr ? 'الأولوية:' : 'Priority:'} {selectedPriorityFilter === 'ALL' ? (isAr ? 'الكل' : 'All') : selectedPriorityFilter}</span>
               <ChevronDown className="w-3 h-3 text-slate-400" />
             </button>

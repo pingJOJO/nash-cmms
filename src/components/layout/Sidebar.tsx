@@ -22,7 +22,11 @@ import {
   ChevronRight,
   Sparkles,
   CheckCircle2,
-  Check
+  Check,
+  X,
+  Clock,
+  Zap,
+  Database
 } from 'lucide-react';
 
 import { useAuth } from '../../context/AuthContext';
@@ -536,28 +540,40 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => setShowHelpModal(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="space-y-3 text-xs text-slate-600 max-h-[60vh] overflow-y-auto pr-1">
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <h4 className="font-bold text-slate-900 mb-1">📋 Work Order Management</h4>
+                <h4 className="font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+                  <ClipboardList className="w-4 h-4 text-sky-600 shrink-0" />
+                  <span>Work Order Management</span>
+                </h4>
                 <p>Create work orders, assign responsible technicians, set delivery dates, track progression stages, and document labor hours, spare parts, and contractor expenses.</p>
               </div>
 
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <h4 className="font-bold text-slate-900 mb-1">⏱️ Preventive Maintenance & Telemetry</h4>
+                <h4 className="font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Preventive Maintenance & Telemetry</span>
+                </h4>
                 <p>Automate recurring preventive maintenance schedules based on time (weekly/monthly/annual) or meter runtime hours to prevent unexpected breakdowns.</p>
               </div>
 
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <h4 className="font-bold text-slate-900 mb-1">⚡ Offline-First Architecture</h4>
+                <h4 className="font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+                  <Zap className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span>Offline-First Architecture</span>
+                </h4>
                 <p>Ensures smooth execution in low-connectivity sites. All checklists and work order updates are saved locally and synced automatically once online.</p>
               </div>
 
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <h4 className="font-bold text-slate-900 mb-1">💾 Automated Secure Backups</h4>
+                <h4 className="font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+                  <Database className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <span>Automated Secure Backups</span>
+                </h4>
                 <p>The database is protected with automated daily encrypted backups on the server. You can also export instant SQL snapshots at any time via the bottom toolbar or Settings.</p>
               </div>
             </div>
@@ -593,7 +609,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => { setShowUpgradeModal(false); setUpgradeSuccess(false); }}
                 className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 

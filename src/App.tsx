@@ -40,7 +40,7 @@ import { OfflineBanner } from './components/common/OfflineBanner';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoginView } from './components/auth/LoginView';
 import { api } from './services/api';
-import { MessageSquare, Sparkles, X, Send, Bot, Check, UploadCloud } from 'lucide-react';
+import { MessageSquare, Sparkles, X, Send, Bot, Check, UploadCloud, FileSpreadsheet, CalendarClock } from 'lucide-react';
 
 export function App() {
   return (
@@ -1455,7 +1455,7 @@ function AppContent() {
       >
         <MessageSquare className="w-5 h-5" />
         <span className={`absolute top-0 ${isRtl ? 'left-0' : 'right-0'} w-4 h-4 rounded-full bg-emerald-500 text-white font-bold text-[9px] flex items-center justify-center border-2 border-white`}>
-          ✓
+          <Check className="w-2.5 h-2.5" />
         </span>
       </button>
 
@@ -1515,15 +1515,17 @@ function AppContent() {
             </button>
             <button
               onClick={() => handleSendChat(undefined, isRtl ? 'كيف أصدّر التقارير بصيغة CSV؟' : 'How do I export CSV reports?')}
-              className="text-[10px] bg-white border border-slate-200 hover:border-sky-300 text-slate-600 px-2 py-1 rounded-lg transition-colors cursor-pointer"
+              className="text-[10px] bg-white border border-slate-200 hover:border-sky-300 text-slate-600 px-2 py-1 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1"
             >
-              {isRtl ? '📊 تصدير كـ CSV' : '📊 Export CSV'}
+              <FileSpreadsheet className="w-3 h-3 text-sky-600" />
+              <span>{isRtl ? 'تصدير كـ CSV' : 'Export CSV'}</span>
             </button>
             <button
               onClick={() => handleSendChat(undefined, isRtl ? 'كيف أشغل الصيانة الوقائية الفورية؟' : 'How to trigger Preventive Maintenance?')}
-              className="text-[10px] bg-white border border-slate-200 hover:border-sky-300 text-slate-600 px-2 py-1 rounded-lg transition-colors cursor-pointer"
+              className="text-[10px] bg-white border border-slate-200 hover:border-sky-300 text-slate-600 px-2 py-1 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1"
             >
-              {isRtl ? '⚡ الصيانة الوقائية' : '⚡ PM Schedules'}
+              <CalendarClock className="w-3 h-3 text-amber-500" />
+              <span>{isRtl ? 'الصيانة الوقائية' : 'PM Schedules'}</span>
             </button>
           </div>
 

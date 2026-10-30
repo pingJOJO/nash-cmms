@@ -122,8 +122,8 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
           status: 'OPEN'
         });
         const msg = language === 'ar' 
-          ? `✅ تم فتح أمر العمل بنجاح (${title})` 
-          : `✅ Work order created successfully (${title})`;
+          ? `تم فتح أمر العمل بنجاح (${title})` 
+          : `Work order created successfully (${title})`;
         setExecutionMessage(msg);
         if (onSuccess) onSuccess(msg);
       } else if (result.actionType === 'CLOSE_WO') {
@@ -131,8 +131,8 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
         if (code) {
           await api.updateWorkOrder(code.toUpperCase(), { status: 'COMPLETED' });
           const msg = language === 'ar'
-            ? `✅ تم إغلاق أمر العمل ${code.toUpperCase()} بنجاح`
-            : `✅ Work order ${code.toUpperCase()} marked as completed`;
+            ? `تم إغلاق أمر العمل ${code.toUpperCase()} بنجاح`
+            : `Work order ${code.toUpperCase()} marked as completed`;
           setExecutionMessage(msg);
           if (onSuccess) onSuccess(msg);
         } else {
@@ -165,11 +165,11 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
 
         const msg = updatedPart
           ? (language === 'ar'
-              ? `✅ تم تحديث رصيد القطعة (${updatedPart.name}) إلى ${updatedPart.quantity} وحدة في المستودع`
-              : `✅ Part (${updatedPart.name}) stock updated to ${updatedPart.quantity} units`)
+              ? `تم تحديث رصيد القطعة (${updatedPart.name}) إلى ${updatedPart.quantity} وحدة في المستودع`
+              : `Part (${updatedPart.name}) stock updated to ${updatedPart.quantity} units`)
           : (language === 'ar'
-              ? `✅ تم تسجيل حركة المستودع: ${partName || 'القطعة'} (${qty} وحدة)`
-              : `✅ Stock adjustment logged: ${partName || 'Part'} (${qty} units)`);
+              ? `تم تسجيل حركة المستودع: ${partName || 'القطعة'} (${qty} وحدة)`
+              : `Stock adjustment logged: ${partName || 'Part'} (${qty} units)`);
         setExecutionMessage(msg);
         if (onSuccess) onSuccess(msg);
       } else {
@@ -406,10 +406,10 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
   };
 
   const sampleCommands = [
-    { text: 'أنشئ بلاغ عطل لمضخة الأكسجين في قسم العناية المركزة', type: 'CREATE_WO', label: '🏥 بلاغ عطل فوري' },
-    { text: 'أغلق أمر العمل WO000001 تم الفحص بنجاح', type: 'CLOSE_WO', label: '✅ إغلاق أمر عمل' },
-    { text: 'رف A-02 رولمان بلي 6204 العدد 15', type: 'STOCK_UPDATE', label: '📦 جرد رف مستودع' },
-    { text: 'استخدمت 2 رولمان بلي من المستودع', type: 'PARTS_DEDUCTION', label: '⚙️ خصم قطع مستخدمة' }
+    { text: 'أنشئ بلاغ عطل لمضخة الأكسجين في قسم العناية المركزة', type: 'CREATE_WO', label: 'بلاغ عطل فوري', icon: Wrench },
+    { text: 'أغلق أمر العمل WO000001 تم الفحص بنجاح', type: 'CLOSE_WO', label: 'إغلاق أمر عمل', icon: CheckCircle2 },
+    { text: 'رف A-02 رولمان بلي 6204 العدد 15', type: 'STOCK_UPDATE', label: 'جرد رف مستودع', icon: Package },
+    { text: 'استخدمت 2 رولمان بلي من المستودع', type: 'PARTS_DEDUCTION', label: 'خصم قطع مستخدمة', icon: RefreshCw }
   ];
 
   return (
@@ -516,8 +516,8 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
                 <span className={`w-2.5 h-2.5 rounded-full ${isListening || isSimulating ? 'bg-rose-500 animate-ping' : 'bg-slate-500'}`} />
                 <span>
                   {isListening || isSimulating 
-                    ? (language === 'ar' ? '🔴 التسجيل نشط (ON) — تحدّث بحرية' : '🔴 Recording is ON — Speak freely')
-                    : (language === 'ar' ? '⚪ التسجيل متوقف (OFF)' : '⚪ Recording is OFF')}
+                    ? (language === 'ar' ? 'التسجيل نشط (ON) — تحدّث بحرية' : 'Recording is ON — Speak freely')
+                    : (language === 'ar' ? 'التسجيل متوقف (OFF)' : 'Recording is OFF')}
                 </span>
                 {(isListening || isSimulating) && (
                   <span className="font-mono text-[11px] bg-rose-950/90 px-2 py-0.5 rounded text-rose-200 font-bold border border-rose-500/30">
@@ -735,8 +735,9 @@ export const VoiceCommandModal: React.FC<VoiceCommandModalProps> = ({
                   className="p-2.5 text-right rounded-xl bg-slate-950/60 hover:bg-slate-800/80 border border-slate-800/80 hover:border-sky-500/40 text-xs transition group flex flex-col gap-0.5 cursor-pointer shadow-xs"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-sky-400 group-hover:text-sky-300">
-                      {sample.label}
+                    <span className="font-semibold text-sky-400 group-hover:text-sky-300 inline-flex items-center gap-1.5">
+                      <sample.icon className="w-3.5 h-3.5 shrink-0" />
+                      <span>{sample.label}</span>
                     </span>
                     <Play className="w-3 h-3 text-slate-500 group-hover:text-sky-400 transition" />
                   </div>
