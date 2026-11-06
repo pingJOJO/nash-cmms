@@ -28,6 +28,15 @@ const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3010;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+// Safe date parser to protect Prisma from Invalid Date exceptions
+function parseSafeDate(value: any): Date | undefined {
+  if (!value) return undefined;
+  if (value instanceof Date && !isNaN(value.getTime())) return value;
+  const d = new Date(value);
+  if (!isNaN(d.getTime())) return d;
+  return undefined;
+}
+
 // Standardized Unified API Response Helpers
 function sendSuccess(res: Response, data: any, message?: string, statusCode = 200) {
   return res.status(statusCode).json({
@@ -697,8 +706,8 @@ app.post('/api/work-orders', async (req: Request, res: Response) => {
           categoryId: categoryId || undefined,
           assignedToId: assignedToId || undefined,
           createdById: creatorId,
-          dueDate: body.dueDate ? new Date(body.dueDate) : null,
-          expectedStartDate: body.expectedStartDate ? new Date(body.expectedStartDate) : null,
+          dueDate: parseSafeDate(body.dueDate) || null,
+          expectedStartDate: parseSafeDate(body.expectedStartDate) || null,
           estimatedDurationHours: body.estimatedDurationHours ? Number(body.estimatedDurationHours) : undefined,
           requiresSignature: !!body.requiresSignature
         }
@@ -824,23 +833,40 @@ app.put('/api/work-orders/:id', async (req: Request, res: Response) => {
       }
 
       // 3. Update the work order
+      let resolvedAssignedId = body.assignedToId;
+      if (!resolvedAssignedId && body.assignedToName) {
+        const foundUser = await tx.user.findFirst({
+          where: {
+            OR: [
+              { name: { contains: body.assignedToName.split(' ')[0], mode: 'insensitive' } },
+              { email: { contains: 'tech', mode: 'insensitive' } }
+            ]
+          }
+        });
+        if (foundUser) resolvedAssignedId = foundUser.id;
+      }
+
+      const parsedDueDate = parseSafeDate(body.dueDate);
+      const parsedStartDate = parseSafeDate(body.expectedStartDate);
+
+      const updateData: any = {};
+      if (body.title !== undefined) updateData.title = body.title;
+      if (body.description !== undefined) updateData.description = body.description;
+      if (body.status !== undefined) updateData.status = body.status;
+      if (body.priority !== undefined) updateData.priority = body.priority;
+      if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl;
+      if (body.locationId !== undefined) updateData.locationId = body.locationId;
+      if (body.assetId !== undefined) updateData.assetId = body.assetId;
+      if (body.categoryId !== undefined) updateData.categoryId = body.categoryId;
+      if (resolvedAssignedId !== undefined) updateData.assignedToId = resolvedAssignedId;
+      if (parsedDueDate !== undefined) updateData.dueDate = parsedDueDate;
+      if (parsedStartDate !== undefined) updateData.expectedStartDate = parsedStartDate;
+      if (body.estimatedDurationHours !== undefined) updateData.estimatedDurationHours = Number(body.estimatedDurationHours);
+      if (body.requiresSignature !== undefined) updateData.requiresSignature = body.requiresSignature;
+
       const updated = await tx.workOrder.update({
         where: { id: current.id },
-        data: {
-          title: body.title,
-          description: body.description,
-          status: body.status,
-          priority: body.priority,
-          imageUrl: body.imageUrl,
-          locationId: body.locationId,
-          assetId: body.assetId,
-          categoryId: body.categoryId,
-          assignedToId: body.assignedToId,
-          dueDate: body.dueDate ? new Date(body.dueDate) : undefined,
-          expectedStartDate: body.expectedStartDate ? new Date(body.expectedStartDate) : undefined,
-          estimatedDurationHours: body.estimatedDurationHours ? Number(body.estimatedDurationHours) : undefined,
-          requiresSignature: body.requiresSignature
-        },
+        data: updateData,
         include: {
           tasks: { orderBy: { orderIndex: 'asc' } },
           labors: { include: { user: true } },

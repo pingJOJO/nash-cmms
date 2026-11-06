@@ -14,7 +14,8 @@ import {
   Circle, 
   Send, 
   Paperclip,
-  Check
+  Check,
+  UserCheck
 } from 'lucide-react';
 import { WorkOrder, WorkOrderStatus, Priority } from '../../types/cmms';
 import { PriorityBadge } from '../common/Badge';
@@ -81,6 +82,11 @@ export const WorkOrderDetailDrawer: React.FC<WorkOrderDetailDrawerProps> = ({
 
   const [newComment, setNewComment] = useState('');
 
+  // Supervisor Assignment State
+  const [selectedTech, setSelectedTech] = useState('Marcus Vance (Maintenance Tech)');
+  const [selectedSLA, setSelectedSLA] = useState('خلال ساعتين (عاجل - 2h SLA Emergency)');
+  const [assignmentSuccess, setAssignmentSuccess] = useState(false);
+
   // Initialize edit fields when work order opens or changes
   useEffect(() => {
     if (workOrder) {
@@ -88,9 +94,24 @@ export const WorkOrderDetailDrawer: React.FC<WorkOrderDetailDrawerProps> = ({
       setEditDesc(workOrder.description);
       setEditPriority(workOrder.priority);
       setEditDueDate(workOrder.dueDate);
+      if (workOrder.assignedToName) {
+        setSelectedTech(workOrder.assignedToName);
+      }
       setIsEditing(false);
     }
   }, [workOrder?.id]);
+
+  const handleConfirmAssignment = () => {
+    if (onUpdateWorkOrder && workOrder) {
+      onUpdateWorkOrder(workOrder.id, {
+        assignedToName: selectedTech,
+        assignedToAvatar: selectedTech.charAt(0).toUpperCase(),
+        dueDate: selectedSLA
+      });
+      setAssignmentSuccess(true);
+      setTimeout(() => setAssignmentSuccess(false), 5000);
+    }
+  };
 
   // Active Timer logic
   useEffect(() => {
@@ -161,6 +182,7 @@ export const WorkOrderDetailDrawer: React.FC<WorkOrderDetailDrawerProps> = ({
       onClick={onClose}
     >
       <div 
+        id="wo-detail-drawer"
         className="w-full max-w-xl bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300 border-l border-slate-200 relative"
         onClick={(e) => e.stopPropagation()}
       >
@@ -193,6 +215,7 @@ export const WorkOrderDetailDrawer: React.FC<WorkOrderDetailDrawerProps> = ({
                 </button>
               )}
               <button 
+                id="close-wo-drawer-btn"
                 onClick={onClose}
                 title="Close Drawer"
                 className="p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-200/70 cursor-pointer transition-colors bg-white shadow-2xs border border-slate-200"
@@ -311,6 +334,7 @@ export const WorkOrderDetailDrawer: React.FC<WorkOrderDetailDrawerProps> = ({
           {/* Status Dropdown */}
           <div className="flex items-center gap-2">
             <select
+              id="wo-status-select"
               value={workOrder.status}
               onChange={(e) => onUpdateStatus(workOrder.id, e.target.value as WorkOrderStatus)}
               className={`text-xs font-bold px-3 py-1.5 rounded-lg border cursor-pointer focus:outline-none ${
@@ -348,6 +372,69 @@ export const WorkOrderDetailDrawer: React.FC<WorkOrderDetailDrawerProps> = ({
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {activeTab === 'details' ? (
             <>
+              {/* Supervisor Review & Assignment Banner / Card */}
+              <div className="p-4 bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-200 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 rounded-lg bg-sky-600 text-white font-bold text-xs flex items-center justify-center">
+                      <UserCheck className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-900">تعيين الفني وتحديد زمن الاستجابة (Supervisor Assignment & SLA)</h4>
+                      <p className="text-[11px] text-slate-500">مراجعة أمر العمل وإسناده لفني الميدان مع اتفاقية مستوى الخدمة</p>
+                    </div>
+                  </div>
+                  {assignmentSuccess && (
+                    <span className="text-[11px] bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-lg border border-emerald-300 flex items-center gap-1 animate-in fade-in">
+                      <Check className="w-3.5 h-3.5" /> تم التعيين وتحديث SLA
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-1">تعيين فني الصيانة (Assign Technician):</label>
+                    <select
+                      id="supervisor-assign-tech-select"
+                      value={selectedTech}
+                      onChange={(e) => setSelectedTech(e.target.value)}
+                      className="w-full p-2 text-xs bg-white border border-slate-300 rounded-lg text-slate-800 font-semibold focus:ring-2 focus:ring-sky-500 cursor-pointer"
+                    >
+                      <option value="Marcus Vance (Maintenance Tech)">ماركوس فانس (فني الصيانة - Marcus Vance)</option>
+                      <option value="Sarah Connor (Biomedical Tech)">سارة كونور (فنية صيانة أجهزة)</option>
+                      <option value="Alex Chen (Electrical Tech)">أليكس تشن (فني كهرباء وميكانيك)</option>
+                      <option value="David Miller (Plumbing & HVAC)">ديفيد ميلر (فني تكييف وصحي)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-1">وقت الاستجابة المطلوب (SLA Target):</label>
+                    <select
+                      id="supervisor-sla-select"
+                      value={selectedSLA}
+                      onChange={(e) => setSelectedSLA(e.target.value)}
+                      className="w-full p-2 text-xs bg-white border border-slate-300 rounded-lg text-slate-800 font-semibold focus:ring-2 focus:ring-sky-500 cursor-pointer"
+                    >
+                      <option value="خلال ساعتين (عاجل - 2h SLA Emergency)">خلال ساعتين (عاجل - 2h SLA Emergency)</option>
+                      <option value="خلال 4 ساعات (أولوية قياسية - 4h SLA Standard)">خلال 4 ساعات (أولوية قياسية - 4h SLA Standard)</option>
+                      <option value="خلال 8 ساعات (نهاية الوردية - 8h SLA Same Day)">خلال 8 ساعات (نهاية الوردية - 8h SLA Same Day)</option>
+                      <option value="خلال 24 ساعة (صيانة دورية - 24h SLA)">خلال 24 ساعة (صيانة دورية - 24h SLA)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-1">
+                  <button
+                    id="supervisor-save-assignment-btn"
+                    type="button"
+                    onClick={handleConfirmAssignment}
+                    className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>تأكيد التعيين وحفظ الـ SLA (Assign to Technician)</span>
+                  </button>
+                </div>
+              </div>
+
               {/* Metadata Grid */}
               <div className="grid grid-cols-2 gap-4 pb-6 border-b border-slate-100 text-xs">
                 <div>
@@ -691,6 +778,7 @@ export const WorkOrderDetailDrawer: React.FC<WorkOrderDetailDrawerProps> = ({
                     <p className="text-[11px] text-slate-400">Inventory items allocated to this job.</p>
                   </div>
                   <button
+                    id="open-add-part-form-btn"
                     onClick={() => setShowAddPart(true)}
                     className="px-3 py-1.5 bg-sky-50 text-sky-700 hover:bg-sky-100 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
                   >
@@ -747,7 +835,9 @@ export const WorkOrderDetailDrawer: React.FC<WorkOrderDetailDrawerProps> = ({
                         Cancel
                       </button>
                       <button 
-                        type="submit" 
+                        id="add-part-to-job-btn"
+                        type="button" 
+                        onClick={handlePartSubmit}
                         className="px-3 py-1 bg-sky-600 text-white rounded font-bold hover:bg-sky-700 cursor-pointer"
                       >
                         Add to Job

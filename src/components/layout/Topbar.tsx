@@ -283,6 +283,7 @@ export const Topbar: React.FC<TopbarProps> = ({
         {/* User Profile Avatar & Dropdown */}
         <div className="relative">
           <button
+            id="topbar-user-menu-btn"
             onClick={() => {
               setShowUserMenu(!showUserMenu);
               setShowNotifications(false);
@@ -350,6 +351,7 @@ export const Topbar: React.FC<TopbarProps> = ({
 
               <div className="py-1">
                 <button
+                  id="topbar-logout-btn"
                   onClick={() => {
                     logout();
                     setShowUserMenu(false);

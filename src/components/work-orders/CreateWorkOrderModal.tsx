@@ -148,6 +148,7 @@ export const CreateWorkOrderModal: React.FC<CreateWorkOrderModalProps> = ({
               Title <span className="text-rose-500">*</span>
             </label>
             <input
+              id="wo-title-input"
               type="text"
               required
               placeholder="e.g. Replace air filter in unit 4"
@@ -166,6 +167,7 @@ export const CreateWorkOrderModal: React.FC<CreateWorkOrderModalProps> = ({
               Description
             </label>
             <textarea
+              id="wo-description-input"
               rows={3}
               placeholder="Provide detailed instructions, safety notes, or symptoms..."
               value={description}
@@ -277,6 +279,7 @@ export const CreateWorkOrderModal: React.FC<CreateWorkOrderModalProps> = ({
                   <button
                     type="button"
                     key={p}
+                    data-priority={p}
                     onClick={() => setPriority(p)}
                     className={`py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
                       priority === p 
@@ -441,6 +444,7 @@ export const CreateWorkOrderModal: React.FC<CreateWorkOrderModalProps> = ({
             Cancel
           </button>
           <button
+            id="wo-submit-btn"
             type="submit"
             form="wo-create-form"
             className="px-5 py-2.5 bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-600 hover:to-teal-600 text-white text-xs font-bold rounded-xl shadow-md shadow-sky-500/25 transition-all cursor-pointer"

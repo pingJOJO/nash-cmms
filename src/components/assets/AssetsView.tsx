@@ -219,6 +219,7 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
           )}
 
           <button
+            id="add-asset-modal-btn"
             onClick={() => setShowModal(true)}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-600 via-sky-500 to-teal-500 hover:from-sky-500 hover:to-teal-400 text-white text-xs font-bold rounded-xl shadow-md shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
           >

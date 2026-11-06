@@ -108,6 +108,42 @@ async function main() {
       scheduled: false,
       lastLogin: '09/08/26',
       avatar: 'D'
+    },
+    {
+      id: 'USR-MGR-01',
+      name: 'Dr. Elena Rostova (Engineering Director)',
+      email: 'manager@nexcmms.com',
+      phone: '+1 (555) 876-5432',
+      role: UserRole.ADMINISTRATOR,
+      jobTitle: 'Director of Engineering & Facilities',
+      hourlyRate: 65.00,
+      scheduled: true,
+      lastLogin: 'Today, 09:30',
+      avatar: 'M'
+    },
+    {
+      id: 'USR-SUP-01',
+      name: 'Eng. Omar Dabobash (Maintenance Supervisor)',
+      email: 'supervisor@nexcmms.com',
+      phone: '+1 (555) 234-5678',
+      role: UserRole.MANAGER,
+      jobTitle: 'Maintenance Operations Supervisor',
+      hourlyRate: 55.00,
+      scheduled: true,
+      lastLogin: 'Today, 09:00',
+      avatar: 'S'
+    },
+    {
+      id: 'USR-TEC-01',
+      name: 'Marcus Vance (Maintenance Tech)',
+      email: 'tech@nexcmms.com',
+      phone: '+1 (555) 432-1098',
+      role: UserRole.TECHNICIAN,
+      jobTitle: 'Senior Field Maintenance Technician',
+      hourlyRate: 45.00,
+      scheduled: true,
+      lastLogin: 'Today, 08:45',
+      avatar: 'T'
     }
   ];
 

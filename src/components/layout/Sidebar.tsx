@@ -144,6 +144,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <nav className="flex-1 overflow-y-auto px-2 py-1.5 space-y-0.5 text-xs font-medium pb-8 select-none">
           {/* Work Orders */}
           <button
+            data-route="work-orders"
             onClick={() => onNavigate('work-orders')}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
               currentRoute === 'work-orders'
@@ -165,6 +166,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Preventive Maintenance */}
           <button
+            data-route="preventive-maintenances"
             onClick={() => onNavigate('preventive-maintenances')}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
               currentRoute === 'preventive-maintenances'
@@ -187,6 +189,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }`}
             >
               <button
+                data-route="statistics"
                 onClick={() => {
                   onNavigate('statistics');
                   if (!collapsed) setExpandedMenus(prev => ({ ...prev, statistics: true }));
@@ -261,6 +264,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Requests */}
           <button
+            data-route="requests"
             onClick={() => onNavigate('requests')}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
               currentRoute === 'requests'
@@ -282,6 +286,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Assets */}
           <button
+            data-route="assets"
             onClick={() => onNavigate('assets')}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
               currentRoute === 'assets'
@@ -296,6 +301,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Locations */}
           <button
+            data-route="locations"
             onClick={() => onNavigate('locations')}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
               currentRoute === 'locations'

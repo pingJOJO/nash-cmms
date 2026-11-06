@@ -19,6 +19,33 @@ export interface LoginResult {
 
 export const DEMO_USERS: AuthUser[] = [
   {
+    id: 'USR-MGR-01',
+    name: 'Dr. Elena Rostova',
+    email: 'manager@nexcmms.com',
+    role: 'ADMINISTRATOR',
+    jobTitle: 'Director of Engineering & Facilities',
+    hourlyRate: 65.00,
+    avatar: 'M'
+  },
+  {
+    id: 'USR-SUP-01',
+    name: 'Eng. Omar Dabobash',
+    email: 'supervisor@nexcmms.com',
+    role: 'MANAGER',
+    jobTitle: 'Maintenance Operations Supervisor',
+    hourlyRate: 55.00,
+    avatar: 'S'
+  },
+  {
+    id: 'USR-TEC-01',
+    name: 'Marcus Vance',
+    email: 'tech@nexcmms.com',
+    role: 'TECHNICIAN',
+    jobTitle: 'Senior Field Maintenance Technician',
+    hourlyRate: 45.00,
+    avatar: 'T'
+  },
+  {
     id: 'USR-001',
     name: 'Omar Dabobash',
     email: 'omar@nexcmms.online',
@@ -79,18 +106,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
     try {
+      const isLoggedOut = localStorage.getItem('nex_logged_out');
+      if (isLoggedOut === 'true') return null;
       const saved = localStorage.getItem('nex_auth_user');
       if (saved) return JSON.parse(saved);
     } catch {
       // fallback
     }
-    // Default to Administrator so the user has an active session on first load
-    return DEMO_USERS[0];
+    // Return null so unauthenticated users see the LoginView
+    return null;
   });
 
   useEffect(() => {
     if (currentUser) {
       localStorage.setItem('nex_auth_user', JSON.stringify(currentUser));
+      localStorage.removeItem('nex_logged_out');
     } else {
       localStorage.removeItem('nex_auth_user');
     }
@@ -124,13 +154,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // 4. Fallback for custom enterprise team members
+    let detectedRole: UserRole = 'ADMINISTRATOR';
+    let jobTitle = 'Enterprise Staff';
+    if (trimmedEmail.includes('tech')) {
+      detectedRole = 'TECHNICIAN';
+      jobTitle = 'Maintenance Technician';
+    } else if (trimmedEmail.includes('super')) {
+      detectedRole = 'MANAGER';
+      jobTitle = 'Maintenance Supervisor';
+    } else if (trimmedEmail.includes('request') || trimmedEmail.includes('op')) {
+      detectedRole = 'REQUESTER';
+      jobTitle = 'Plant Operator / Requester';
+    }
+
     const customUser: AuthUser = {
       id: `USR-${Date.now().toString().slice(-4)}`,
       name: trimmedEmail.split('@')[0].replace(/[._]/g, ' '),
       email: trimmedEmail,
-      role: 'ADMINISTRATOR',
-      jobTitle: 'Enterprise Staff',
-      hourlyRate: 45.00,
+      role: detectedRole,
+      jobTitle: jobTitle,
+      hourlyRate: detectedRole === 'TECHNICIAN' ? 45.00 : 55.00,
       avatar: (trimmedEmail[0] || 'U').toUpperCase()
     };
     setCurrentUser(customUser);
@@ -143,6 +186,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    localStorage.setItem('nex_logged_out', 'true');
+    localStorage.removeItem('nex_auth_user');
     setCurrentUser(null);
   };
 

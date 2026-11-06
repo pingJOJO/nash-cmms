@@ -4,7 +4,7 @@ import { Shield, Wrench, FileText, ArrowRight, Lock, Mail, CheckCircle2, AlertTr
 
 export const LoginView: React.FC = () => {
   const { login, quickSwitchRole } = useAuth();
-  const [email, setEmail] = useState('omar@nexcmms.online');
+  const [email, setEmail] = useState('manager@nexcmms.com');
   const [password, setPassword] = useState('demo1234');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -125,6 +125,7 @@ export const LoginView: React.FC = () => {
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
+                id="login-email-input"
                 type="email"
                 value={email}
                 onChange={(e) => {
@@ -145,6 +146,7 @@ export const LoginView: React.FC = () => {
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
+                id="login-password-input"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => {
@@ -167,6 +169,7 @@ export const LoginView: React.FC = () => {
           </div>
 
           <button
+            id="login-submit-btn"
             type="submit"
             className="w-full mt-2 py-3 px-4 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-medium rounded-xl shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2 text-sm transition-all duration-200 cursor-pointer"
           >
