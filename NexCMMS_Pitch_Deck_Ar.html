@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexCMMS — Investor Pitch Deck</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Inter:wght@300;400;600;700;900&display=swap');
+
+  :root {
+    --primary: #0F172A;
+    --accent: #0EA5E9;
+    --accent2: #6366F1;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --light: #F8FAFC;
+    --muted: #64748B;
+    --border: #E2E8F0;
+    --card: #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Cairo', 'Inter', sans-serif;
+    background: #0a0f1e;
+    color: white;
+  }
+
+  .slide {
+    width: 1280px;
+    min-height: 720px;
+    margin: 0 auto 4px;
+    display: flex;
+    flex-direction: column;
+    padding: 60px 72px;
+    position: relative;
+    page-break-after: always;
+    overflow: hidden;
+  }
+
+  /* Slide Themes */
+  .slide-dark { background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); }
+  .slide-blue { background: linear-gradient(135deg, #0369A1 0%, #0F172A 60%); }
+  .slide-indigo { background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #0F172A 100%); }
+  .slide-dark-green { background: linear-gradient(135deg, #064E3B 0%, #0F172A 70%); }
+  .slide-dark-red { background: linear-gradient(135deg, #450A0A 0%, #0F172A 70%); }
+  .slide-ask { background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%); }
+
+  /* Decorative Blobs */
+  .slide::before {
+    content: '';
+    position: absolute;
+    top: -120px; left: -120px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .slide::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: -80px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* Slide Header */
+  .slide-num {
+    position: absolute;
+    top: 20px; left: 72px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 2px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .timing-note {
+    position: absolute;
+    top: 18px; right: 72px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Typography */
+  .kicker {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 12px;
+  }
+  h1.hero {
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 1.0;
+    margin-bottom: 16px;
+  }
+  h2.slide-title {
+    font-size: 44px;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 32px;
+  }
+  h3.section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 12px;
+  }
+  .subtitle {
+    font-size: 22px;
+    color: rgba(255,255,255,0.65);
+    font-weight: 400;
+    line-height: 1.4;
+  }
+  .big-number {
+    font-size: 80px;
+    font-weight: 900;
+    line-height: 1.0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #38BDF8, #818CF8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .big-number-red {
+    background: linear-gradient(135deg, #FCA5A5, #F87171);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .big-number-green {
+    background: linear-gradient(135deg, #6EE7B7, #34D399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Cards & Boxes */
+  .card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 16px;
+    padding: 24px 28px;
+    backdrop-filter: blur(10px);
+  }
+  .card-blue {
+    background: rgba(14,165,233,0.10);
+    border-color: rgba(14,165,233,0.25);
+  }
+  .card-green {
+    background: rgba(16,185,129,0.10);
+    border-color: rgba(16,185,129,0.25);
+  }
+  .card-red {
+    background: rgba(239,68,68,0.10);
+    border-color: rgba(239,68,68,0.25);
+  }
+  .card-purple {
+    background: rgba(99,102,241,0.12);
+    border-color: rgba(99,102,241,0.30);
+  }
+
+  /* Bullet Lists */
+  .bullet-list { list-style: none; }
+  .bullet-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+    font-size: 17px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.85);
+  }
+  .bullet-list li::before {
+    content: '→';
+    color: var(--accent);
+    font-size: 14px;
+    margin-top: 2px;
+    flex-shrink: 0;
+    font-family: 'Inter', sans-serif;
+  }
+  .bullet-list.red li::before { color: #F87171; content: '✕'; }
+  .bullet-list.green li::before { color: #34D399; content: '✓'; }
+
+  /* Grid layouts */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+  .grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+
+  /* Market Circle (TAM/SAM/SOM) */
+  .market-circles {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    flex: 1;
+  }
+  .market-circle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    text-align: center;
+  }
+  .circle-tam { width: 320px; height: 320px; background: radial-gradient(circle, rgba(14,165,233,0.25) 0%, rgba(14,165,233,0.05) 70%); border: 2px solid rgba(14,165,233,0.4); }
+  .circle-sam { width: 230px; height: 230px; background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, rgba(99,102,241,0.05) 70%); border: 2px solid rgba(99,102,241,0.4); }
+  .circle-som { width: 150px; height: 150px; background: radial-gradient(circle, rgba(16,185,129,0.4) 0%, rgba(16,185,129,0.05) 70%); border: 2px solid rgba(16,185,129,0.5); }
+  .circle-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: rgba(255,255,255,0.6);
+  }
+  .circle-value { font-size: 28px; font-weight: 900; font-family: 'Inter', sans-serif; line-height: 1.1; }
+  .circle-desc { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px; max-width: 120px; text-align: center; }
+
+  /* Competition Matrix */
+  .matrix-container {
+    position: relative;
+    width: 520px;
+    height: 420px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .matrix-quadrant {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    text-align: center;
+    padding: 12px;
+    font-family: 'Inter', sans-serif;
+  }
+  .matrix-axis-label {
+    position: absolute;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .competitor-dot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+  }
+  .dot-name {
+    font-size: 10px;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    color: rgba(255,255,255,0.65);
+  }
+
+  /* Step Workflow */
+  .workflow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex: 1;
+  }
+  .workflow-step {
+    flex: 1;
+    text-align: center;
+    padding: 24px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 16px;
+    position: relative;
+  }
+  .workflow-arrow {
+    font-size: 24px;
+    color: var(--accent);
+    padding: 0 12px;
+    flex-shrink: 0;
+  }
+  .workflow-step .step-num {
+    display: inline-block;
+    width: 36px; height: 36px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-weight: 900;
+    font-size: 16px;
+    line-height: 36px;
+    text-align: center;
+    margin-bottom: 12px;
+    font-family: 'Inter', sans-serif;
+  }
+  .workflow-step .step-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .workflow-step .step-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.4;
+  }
+
+  /* Advantage Boxes */
+  .advantage-box {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .advantage-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+  .advantage-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+  }
+  .advantage-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.4;
+  }
+
+  /* Logo badge */
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, #0EA5E9, #6366F1);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 900;
+    font-family: 'Inter', sans-serif;
+  }
+  .logo-text {
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    font-family: 'Inter', sans-serif;
+  }
+  .logo-text span { color: var(--accent); }
+
+  /* Stat Row */
+  .stat-row {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+  }
+  .stat-item {
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 36px;
+    font-weight: 900;
+    font-family: 'Inter', sans-serif;
+    color: var(--accent);
+  }
+  .stat-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Divider */
+  .divider {
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    margin: 16px 0;
+  }
+
+  /* Tag */
+  .tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .tag-blue { background: rgba(14,165,233,0.2); color: #38BDF8; border: 1px solid rgba(14,165,233,0.3); }
+  .tag-green { background: rgba(16,185,129,0.2); color: #34D399; border: 1px solid rgba(16,185,129,0.3); }
+  .tag-purple { background: rgba(99,102,241,0.2); color: #A5B4FC; border: 1px solid rgba(99,102,241,0.3); }
+
+  /* Milestone */
+  .milestone { display: flex; align-items: center; gap: 20px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .milestone-q { font-size: 11px; font-weight: 700; color: var(--accent); font-family: 'Inter', sans-serif; min-width: 56px; text-align: center; background: rgba(14,165,233,0.15); border-radius: 6px; padding: 4px 8px; }
+  .milestone-text { font-size: 15px; color: rgba(255,255,255,0.85); flex: 1; }
+  .milestone-kpi { font-size: 14px; font-weight: 700; color: #A5B4FC; font-family: 'Inter', sans-serif; min-width: 100px; text-align: left; }
+
+  /* Screenshot Box */
+  .screenshot-box {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: #1E293B;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .screenshot-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Print layout */
+  @media print {
+    body { background: white; }
+    .slide { margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 1 — TITLE
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide slide-dark" style="justify-content: center; align-items: flex-start;">
+  <div class="slide-num">01 / 11</div>
+  <div class="timing-note">⏱ 20 ثانية</div>
+
+  <div style="max-width: 700px; margin-top: 40px;">
+    <div class="logo-badge">
+      <div class="logo-icon">N</div>
+      <div class="logo-text">Nex<span>CMMS</span></div>
+    </div>
+
+    <div class="kicker">NASH CMMS — نظام إدارة الصيانة المحوسبة</div>
+    <h1 class="hero">الصيانة الذكية،<br>الآن.</h1>
+    <div class="divider"></div>
+    <p class="subtitle">
+      البديل السحابي الأسرع والأرخص والأجمل لأنظمة CMMS المعقدة،<br>
+      مبني لمستشفيات ومصانع وشركات المرافق في الشرق الأوسط.
+    </p>
+
+    <div class="stat-row" style="margin-top: 40px;">
+      <div class="stat-item">
+        <div class="stat-num">v1.1</div>
+        <div class="stat-label">Production Ready</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3</div>
+        <div class="stat-label">RBAC Roles Certified</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Bugs — QA Passed</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">1ms</div>
+        <div class="stat-label">API Latency</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right side decoration -->
+  <div style="position: absolute; left: 60px; top: 50%; transform: translateY(-50%); opacity: 0.07;">
+    <svg width="380" height="380" viewBox="0 0 380 380" fill="none">
+      <circle cx="190" cy="190" r="180" stroke="white" stroke-width="1"/>
+      <circle cx="190" cy="190" r="130" stroke="white" stroke-width="1"/>
+      <circle cx="190" cy="190" r="80" stroke="white" stroke-width="1"/>
+      <line x1="10" y1="190" x2="370" y2="190" stroke="white" stroke-width="0.5"/>
+      <line x1="190" y1="10" x2="190" y2="370" stroke="white" stroke-width="0.5"/>
+    </svg>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 2 — PROBLEM
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide slide-dark-red">
+  <div class="slide-num">02 / 11 — المشكلة</div>
+  <div class="timing-note">⏱ 25 ثانية</div>
+
+  <h2 class="slide-title" style="color: #FCA5A5;">الصيانة بالطريقة القديمة<br>تُدمّر الأرباح.</h2>
+
+  <div class="grid-3" style="flex:1; align-items: start; gap: 28px; margin-top: 8px;">
+    <div class="card card-red">
+      <div class="big-number big-number-red" style="font-size: 60px;">$260K</div>
+      <div style="font-size: 13px; color: rgba(255,255,255,0.5); font-family: 'Inter', sans-serif; margin-bottom: 12px;">تكلفة كل ساعة توقف غير مخطط</div>
+      <ul class="bullet-list red">
+        <li>Unplanned Downtime يُكلّف المصانع الكبرى تريليون سنوياً</li>
+        <li>كل دقيقة توقف في مصنع أدوية = خسارة حقيقية وتلف منتج</li>
+      </ul>
+    </div>
+
+    <div class="card card-red">
+      <div class="big-number big-number-red" style="font-size: 60px;">80%</div>
+      <div style="font-size: 13px; color: rgba(255,255,255,0.5); font-family: 'Inter', sans-serif; margin-bottom: 12px;">من المنشآت تعتمد على Excel والورق</div>
+      <ul class="bullet-list red">
+        <li>لا تتبع حي لأوامر العمل Work Orders</li>
+        <li>بيانات موزعة وضائعة بين واتساب ومجلدات ورقية</li>
+      </ul>
+    </div>
+
+    <div class="card card-red">
+      <div class="big-number big-number-red" style="font-size: 56px;">$50K+</div>
+      <div style="font-size: 13px; color: rgba(255,255,255,0.5); font-family: 'Inter', sans-serif; margin-bottom: 12px;">تكلفة أنظمة CMMS التقليدية</div>
+      <ul class="bullet-list red">
+        <li>SAP PM: تعقيد عالٍ وشهور تنصيب — غير مناسب للأسواق الناشئة</li>
+        <li>Maximo: تراخيص مرتفعة تعجز عنها المنشآت المتوسطة</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 3 — SOLUTION
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide slide-blue">
+  <div class="slide-num">03 / 11 — الحل</div>
+  <div class="timing-note">⏱ 25 ثانية</div>
+
+  <h2 class="slide-title">NexCMMS:<br>قوي كـ SAP، بسيط كـ WhatsApp.</h2>
+
+  <div class="grid-3" style="flex:1; align-items: stretch; gap: 24px;">
+    <div class="card card-blue" style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="font-size: 48px; font-family: 'Inter', sans-serif;">⚡</div>
+      <h3 class="section-title">تقليص الأعطال والتكاليف</h3>
+      <ul class="bullet-list">
+        <li>Preventive Maintenance مجدول تلقائياً ومنبّه</li>
+        <li>تخفيض Downtime حتى <strong style="color:#38BDF8">45%</strong> وتكاليف الصيانة حتى <strong style="color:#38BDF8">25%</strong></li>
+      </ul>
+    </div>
+
+    <div class="card card-blue" style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="font-size: 48px; font-family: 'Inter', sans-serif;">📋</div>
+      <h3 class="section-title">أتمتة Work Orders & PM</h3>
+      <ul class="bullet-list">
+        <li>بلاغ ميداني ذكي خلال <strong style="color:#38BDF8">15 ثانية</strong> بالصوت والصورة</li>
+        <li>تتبع حي عبر 3 Roles: Manager → Supervisor → Technician</li>
+        <li>SLA تلقائي وإشعارات فورية عند أي تأخر</li>
+      </ul>
+    </div>
+
+    <div class="card card-blue" style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="font-size: 48px; font-family: 'Inter', sans-serif;">☁️</div>
+      <h3 class="section-title">Cloud-Native Open Architecture</h3>
+      <ul class="bullet-list">
+        <li>React 19 + PostgreSQL + AWS EC2 — معمارية حديثة ومتوسعة</li>
+        <li>تشغيل سحابي أو On-Premises — اختيار العميل</li>
+        <li>Onboarding في أيام لا أشهر</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 4 — MARKET VALIDATION & PRODUCT READINESS
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide slide-dark">
+  <div class="slide-num">04 / 11 — جاهزية المنتج والسوق</div>
+  <div class="timing-note">⏱ 20 ثانية</div>
+
+  <h2 class="slide-title" style="font-size: 36px; margin-bottom: 24px;">
+    المنتج مبني ومُختبر ومُعتمد.
+  </h2>
+
+  <div class="grid-2" style="flex:1; gap: 28px; align-items: start;">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="card card-green">
+        <div class="kicker">Production Status</div>
+        <ul class="bullet-list green">
+          <li>v1.1.0 — مرفوع على GitHub (Public) وعلى AWS EC2</li>
+          <li>اختبار End-to-End آلي لـ 3 أدوار RBAC مكتمل 100%</li>
+          <li>0 Console Errors — 0 Network Failures</li>
+          <li>API استجابة 1ms — PostgreSQL جاهز</li>
+          <li>TypeScript Strict: 0 أخطاء تجميع</li>
+        </ul>
+      </div>
+
+      <div class="card card-green">
+        <div class="kicker">Tech Stack</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+          <span class="tag tag-blue">React 19</span>
+          <span class="tag tag-blue">TypeScript</span>
+          <span class="tag tag-blue">Node.js</span>
+          <span class="tag tag-blue">PostgreSQL</span>
+          <span class="tag tag-blue">Prisma ORM</span>
+          <span class="tag tag-blue">AWS EC2</span>
+          <span class="tag tag-blue">Nginx + PM2</span>
+          <span class="tag tag-blue">SSL/HTTPS</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="card">
+        <div class="kicker">طلب السوق على التحول الرقمي الصناعي</div>
+        <div class="big-number" style="font-size: 56px;">11.3%</div>
+        <div style="font-size: 14px; color: rgba(255,255,255,0.5);">CAGR — نمو سوق CMMS العالمي 2025–2034</div>
+        <div style="color: rgba(255,255,255,0.4); font-size: 12px; margin-top: 8px; font-family: 'Inter', sans-serif;">المصدر: Fortune Business Insights, 2025</div>
+      </div>
+
+      <div class="card card-purple">
+        <div class="kicker">ما تم بناؤه</div>
+        <ul class="bullet-list">
+          <li>13 جدول قاعدة بيانات — 15 REST API Endpoint</li>
+          <li>10 وحدات واجهة أمامية (Work Orders, Assets, PM, Analytics...)</li>
+          <li>بوابة Voice-to-Action صوتية (تجريبية)</li>
+          <li>دعم كامل عربي/إنجليزي (RTL / LTR)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 5 — MARKET SIZE (TAM / SAM / SOM)
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide slide-indigo">
+  <div class="slide-num">05 / 11 — حجم السوق</div>
+  <div class="timing-note">⏱ 25 ثانية</div>
+
+  <h2 class="slide-title" style="font-size: 36px; margin-bottom: 8px;">سوق ضخم، ونحن في موقع مثالي.</h2>
+  <p class="subtitle" style="font-size: 15px; margin-bottom: 24px;">أرقام موثقة من Grand View Research & Fortune Business Insights, 2025</p>
+
+  <div class="market-circles" style="flex: 1;">
+    <div style="text-align: center;">
+      <div class="market-circle circle-tam">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+          <div class="circle-label">TAM</div>
+          <div class="circle-value" style="color: #38BDF8; font-size: 32px;">$3.82B</div>
+          <div class="circle-desc" style="font-size: 11px;">سوق CMMS العالمي<br>بحلول 2034</div>
+        </div>
+      </div>
+      <div style="font-size: 12px; color: rgba(255,255,255,0.4); font-family: 'Inter', sans-serif; margin-top: 8px;">الكل القابل للعنونة</div>
+    </div>
+
+    <div style="text-align: center;">
+      <div class="market-circle circle-sam">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+          <div class="circle-label">SAM</div>
+          <div class="circle-value" style="color: #A5B4FC; font-size: 24px;">$145M</div>
+          <div class="circle-desc" style="font-size: 10px;">MENA — SME & Enterprise<br>المنشآت المتوسطة والكبرى</div>
+        </div>
+      </div>
+      <div style="font-size: 12px; color: rgba(255,255,255,0.4); font-family: 'Inter', sans-serif; margin-top: 8px;">السوق المخدوم</div>
+    </div>
+
+    <div style="text-align: center;">
+      <div class="market-circle circle-som">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+          <div class="circle-label">SOM</div>
+          <div class="circle-value" style="color: #6EE7B7; font-size: 18px;">$2.5M</div>
+          <div class="circle-desc" style="font-size: 10px;">الأردن<br>سنتان</div>
+        </div>
+      </div>
+      <div style="font-size: 12px; color: rgba(255,255,255,0.4); font-family: 'Inter', sans-serif; margin-top: 8px;">هدفنا القابل للاستحواذ</div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 20px; margin-top: 20px;">
+    <div class="card" style="flex:1; padding: 14px 20px;">
+      <div style="font-size: 11px; color: rgba(255,255,255,0.4); font-family: 'Inter', sans-serif; margin-bottom: 4px;">CAGR</div>
+      <div style="font-size: 24px; font-weight: 900; color: #38BDF8; font-family: 'Inter', sans-serif;">11.3%</div>
+      <div style="font-size: 11px; color: rgba(255,255,255,0.5);">نمو سنوي مركب 2025–2034</div>
+    </div>
+    <div class="card" style="flex:1; padding: 14px 20px;">
+      <div style="font-size: 11px; color: rgba(255,255,255,0.4); font-family: 'Inter', sans-serif; margin-bottom: 4px;">MENA CAGR</div>
+      <div style="font-size: 24px; font-weight: 900; color: #A5B4FC; font-family: 'Inter', sans-serif;">10.5–11%</div>
+      <div style="font-size: 11px; color: rgba(255,255,255,0.5);">نمو MENA — أسرع من المتوسط العالمي</div>
+    </div>
+    <div class="card" style="flex:1; padding: 14px 20px;">
+      <div style="font-size: 11px; color: rgba(255,255,255,0.4); font-family: 'Inter', sans-serif; margin-bottom: 4px;">الأردن — قطاعات مستهدفة</div>
+      <div style="font-size: 20px; font-weight: 900; color: #6EE7B7; font-family: 'Inter', sans-serif;">285+</div>
+      <div style="font-size: 11px; color: rgba(255,255,255,0.5);">مستشفى ومصنع ومنشأة كبرى</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 6 — PRODUCT (3 Steps / Screenshots)
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide slide-dark">
+  <div class="slide-num">06 / 11 — المنتج</div>
+  <div class="timing-note">⏱ 25 ثانية</div>
+
+  <h2 class="slide-title" style="font-size: 34px; margin-bottom: 24px;">
+    رحلة المستخدم — من العطل إلى الإغلاق.
+  </h2>
+
+  <div class="workflow">
+    <div class="workflow-step" style="border-color: rgba(14,165,233,0.3); background: rgba(14,165,233,0.06);">
+      <div class="step-num">1</div>
+      <div class="step-title">إدارة الأصول & PM</div>
+      <div class="step-desc">تسجيل الأصول بـ QR،<br>جدولة Preventive Maintenance تلقائياً مع منبّهات ذكية.</div>
+      <div style="margin-top: 12px;" class="screenshot-box" style="height: 100px;">
+        <img src="qa_live_screenshots/02_manager_assets.png" alt="Assets" style="width:100%; height:120px; object-fit:cover; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
+      </div>
+    </div>
+
+    <div class="workflow-arrow">→</div>
+
+    <div class="workflow-step" style="border-color: rgba(99,102,241,0.3); background: rgba(99,102,241,0.06);">
+      <div class="step-num" style="background: #6366F1;">2</div>
+      <div class="step-title">Work Orders — 3 Roles</div>
+      <div class="step-desc">بلاغ ميداني → إشراف وتعيين SLA → تنفيذ ميداني وإغلاق فوري.</div>
+      <div style="margin-top: 12px;">
+        <img src="qa_live_screenshots/07_tech_in_progress.png" alt="WO" style="width:100%; height:120px; object-fit:cover; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
+      </div>
+    </div>
+
+    <div class="workflow-arrow">→</div>
+
+    <div class="workflow-step" style="border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.06);">
+      <div class="step-num" style="background: #10B981;">3</div>
+      <div class="step-title">Analytics & KPIs</div>
+      <div class="step-desc">تقارير MTTR/MTBF/OEE لحظية، تكاليف كاملة، وإحصائيات القرار للإدارة العليا.</div>
+      <div style="margin-top: 12px;">
+        <img src="qa_live_screenshots/01_manager_dashboard.png" alt="Dashboard" style="width:100%; height:120px; object-fit:cover; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 20px; padding: 14px 24px; background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.25);">
+    <div style="display: flex; align-items: center; gap: 20px; font-family: 'Inter', sans-serif;">
+      <span class="tag tag-green">QA CERTIFIED</span>
+      <span style="color: rgba(255,255,255,0.7); font-size: 14px;">اختبار E2E آلي شامل لـ 3 أدوار — 9 لقطات توثيقية حية — 0 أخطاء — API استجابة 1ms</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 7 — BUSINESS MODEL
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide slide-dark">
+  <div class="slide-num">07 / 11 — نموذج العمل</div>
+  <div class="timing-note">⏱ 20 ثانية</div>
+
+  <h2 class="slide-title" style="font-size: 36px;">B2B SaaS Subscription<br>+ خدمات التهيئة والاعتماد.</h2>
+
+  <div class="grid-2" style="gap: 28px; flex:1; align-items: start;">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="card card-blue">
+        <div class="kicker">باقة المنشآت المتوسطة</div>
+        <div class="big-number" style="font-size: 48px;">$299<span style="font-size:22px; color: rgba(255,255,255,0.5);">/شهر</span></div>
+        <ul class="bullet-list" style="margin-top: 12px;">
+          <li>حتى 200 أصل — مستخدمون غير محدودين</li>
+          <li>مستشفيات متوسطة، مصانع أغذية، شركات مرافق</li>
+        </ul>
+      </div>
+
+      <div class="card card-purple">
+        <div class="kicker">باقة المؤسسات الكبرى</div>
+        <div class="big-number" style="font-size: 48px;">$999<span style="font-size:22px; color: rgba(255,255,255,0.5);">/شهر</span></div>
+        <ul class="bullet-list" style="margin-top: 12px;">
+          <li>أصول ومواقع غير محدودة + SLA Premium</li>
+          <li>مستشفيات رئيسية، مجمعات صناعية، O&M Contractors</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="card" style="background: rgba(255,255,255,0.03);">
+        <div class="kicker">معادلة الـ ARR — السنة الثانية</div>
+        <div style="font-family: 'Inter', sans-serif; font-size: 15px; color: rgba(255,255,255,0.7); line-height: 2.2;">
+          <span style="color: #38BDF8; font-weight: 700;">30</span> منشأة متوسطة × <span style="color: #38BDF8; font-weight: 700;">$3,588</span>/سنة =
+          <span style="color: #34D399; font-weight: 700;">$107K</span><br>
+          + <span style="color: #A5B4FC; font-weight: 700;">10</span> مؤسسة كبرى × <span style="color: #A5B4FC; font-weight: 700;">$11,988</span>/سنة =
+          <span style="color: #34D399; font-weight: 700;">$120K</span><br>
+          <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0; padding-top: 12px;">
+            <span style="font-size: 14px; color: rgba(255,255,255,0.4);">المجموع التقريبي ARR (السنة 2):</span>
+            <div class="big-number big-number-green" style="font-size: 44px; margin-top: 4px;">~$227K ARR</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="kicker">مصادر إيرادات إضافية</div>
+        <ul class="bullet-list">
+          <li>Onboarding & Asset Tagging: <strong>$2K–$5K</strong>/منشأة</li>
+          <li>On-Premise License: <strong>$15K–$35K</strong> (رخصة دائمة)</li>
+          <li>HCAC/JCI Readiness Consulting SLA</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 8 — GO-TO-MARKET
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide slide-dark">
+  <div class="slide-num">08 / 11 — استراتيجية الانتشار</div>
+  <div class="timing-note">⏱ 20 ثانية</div>
+
+  <h2 class="slide-title" style="font-size: 36px;">Go-To-Market: ابدأ في الأردن،<br>توسع في MENA.</h2>
+
+  <div class="grid-3" style="flex:1; align-items: start; gap: 24px; margin-top: 8px;">
+    <div class="card card-blue">
+      <div style="font-size: 36px; margin-bottom: 12px;">🎯</div>
+      <h3 class="section-title">القطاعات المستهدفة (Beachhead)</h3>
+      <ul class="bullet-list">
+        <li>المستشفيات الخاصة المتوسطة (50–300 سرير) — طالبة اعتماد HCAC</li>
+        <li>مصانع الأغذية والأدوية — ملزمة بـ ISO 55000</li>
+        <li>شركات O&M Contractors — تدير عقوداً متعددة</li>
+      </ul>
+    </div>
+
+    <div class="card card-purple">
+      <div style="font-size: 36px; margin-bottom: 12px;">🚀</div>
+      <h3 class="section-title">قنوات اكتساب العملاء</h3>
+      <ul class="bullet-list">
+        <li>Demo مجاني لأسبوعين — لا حاجة لبطاقة ائتمان</li>
+        <li>شراكات استراتيجية مع موردي المعدات الطبية (Siemens, GE)</li>
+        <li>أوراق بحثية وحضور في مؤتمرات الصحة والصناعة</li>
+      </ul>
+    </div>
+
+    <div class="card card-green">
+      <div style="font-size: 36px; margin-bottom: 12px;">📍</div>
+      <h3 class="section-title">خارطة التوسع</h3>
+      <ul class="bullet-list">
+        <li><strong>الأردن</strong> — Beachhead Market (Q1–Q4 2027)</li>
+        <li><strong>KSA + UAE</strong> — Vision 2030 & Smart City (2028)</li>
+        <li><strong>MENA</strong> — المغرب، مصر، الكويت (2029+)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 9 — COMPETITION MATRIX
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide slide-dark">
+  <div class="slide-num">09 / 11 — تحليل المنافسة</div>
+  <div class="timing-note">⏱ 20 ثانية</div>
+
+  <h2 class="slide-title" style="font-size: 34px; margin-bottom: 20px;">نحن في الزاوية الأفضل.</h2>
+
+  <div style="display: flex; gap: 40px; flex: 1; align-items: center;">
+    <!-- Matrix -->
+    <div class="matrix-container">
+      <!-- Background quadrants -->
+      <div class="matrix-quadrant" style="top:0; right:0; background: rgba(16,185,129,0.05);">حديث + رخيص<br>(المنطقة المثالية)</div>
+      <div class="matrix-quadrant" style="top:0; left:0; background: rgba(239,68,68,0.04);">حديث + مُكلف</div>
+      <div class="matrix-quadrant" style="bottom:0; right:0; background: rgba(245,158,11,0.03);">قديم + رخيص</div>
+      <div class="matrix-quadrant" style="bottom:0; left:0; background: rgba(100,116,139,0.05);">قديم + مُكلف</div>
+
+      <!-- Axes -->
+      <div style="position:absolute; top:50%; left:0; right:0; height:1px; background:rgba(255,255,255,0.15);"></div>
+      <div style="position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.15);"></div>
+
+      <!-- Axis Labels -->
+      <div class="matrix-axis-label" style="bottom:8px; left:50%; transform:translateX(-50%);">💰 رخيص / مناسب</div>
+      <div class="matrix-axis-label" style="top:8px; left:50%; transform:translateX(-50%);">💸 مُكلف / تقليدي</div>
+      <div class="matrix-axis-label" style="top:50%; right:8px; transform:translateY(-50%) rotate(90deg);">☁️ حديث / سهل</div>
+      <div class="matrix-axis-label" style="top:50%; left:8px; transform:translateY(-50%) rotate(-90deg);">🏚️ قديم / معقد</div>
+
+      <!-- Competitors -->
+      <!-- NexCMMS — top-right (modern + affordable) -->
+      <div class="competitor-dot" style="top:22%; right:22%;">
+        <div class="dot" style="background: linear-gradient(135deg, #0EA5E9, #6366F1); width: 20px; height: 20px; box-shadow: 0 0 12px rgba(14,165,233,0.6);"></div>
+        <div class="dot-name" style="color: #38BDF8; font-weight: 700; font-size: 12px;">NexCMMS ✦</div>
+      </div>
+
+      <!-- UpKeep — top-right area, slightly more expensive -->
+      <div class="competitor-dot" style="top:30%; right:36%;">
+        <div class="dot" style="background: #64748B;"></div>
+        <div class="dot-name">UpKeep</div>
+      </div>
+
+      <!-- Fiix — top-right, more expensive -->
+      <div class="competitor-dot" style="top:28%; right:52%;">
+        <div class="dot" style="background: #64748B;"></div>
+        <div class="dot-name">Fiix</div>
+      </div>
+
+      <!-- Atlas CMMS — top-right, affordable but less modern -->
+      <div class="competitor-dot" style="top:38%; right:28%;">
+        <div class="dot" style="background: #94A3B8;"></div>
+        <div class="dot-name">Atlas CMMS</div>
+      </div>
+
+      <!-- SAP PM — top-left (expensive + legacy UI) -->
+      <div class="competitor-dot" style="top:38%; left:22%;">
+        <div class="dot" style="background: #DC2626;"></div>
+        <div class="dot-name">SAP PM</div>
+      </div>
+
+      <!-- IBM Maximo — top-left expensive -->
+      <div class="competitor-dot" style="top:30%; left:35%;">
+        <div class="dot" style="background: #DC2626;"></div>
+        <div class="dot-name">IBM Maximo</div>
+      </div>
+
+      <!-- Excel — bottom-right (cheap + old) -->
+      <div class="competitor-dot" style="bottom:25%; right:20%;">
+        <div class="dot" style="background: #78716C;"></div>
+        <div class="dot-name">Excel / Paper</div>
+      </div>
+    </div>
+
+    <!-- Legend & Notes -->
+    <div style="display: flex; flex-direction: column; gap: 16px; flex: 1;">
+      <div class="card card-blue">
+        <div class="kicker">NexCMMS — الميزة التنافسية</div>
+        <ul class="bullet-list">
+          <li>الوحيد المصمم للأسواق الناشئة بواجهة عربية أصيلة</li>
+          <li>أرخص من UpKeep وFiix بنسبة 40–60%</li>
+          <li>أحدث تقنياً من SAP وMaximo بفارق 10 سنوات</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg, #0EA5E9, #6366F1);"></div>
+          <span style="font-size: 13px; font-weight: 700; color: #38BDF8;">NexCMMS — الهدف المثالي</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: #64748B;"></div>
+          <span style="font-size: 13px; color: rgba(255,255,255,0.6);">منافسون سحابيون (أغلى سعراً)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: #DC2626;"></div>
+          <span style="font-size: 13px; color: rgba(255,255,255,0.6);">SAP/Maximo (مُكلف + معقد)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: #78716C;"></div>
+          <span style="font-size: 13px; color: rgba(255,255,255,0.6);">Excel/الورق (بدائي)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 10 — COMPETITIVE ADVANTAGES
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide slide-dark">
+  <div class="slide-num">10 / 11 — لماذا نحن؟</div>
+  <div class="timing-note">⏱ 20 ثانية</div>
+
+  <h2 class="slide-title" style="font-size: 36px; margin-bottom: 24px;">6 أسباب تجعلنا الخيار الأول.</h2>
+
+  <div class="grid-3" style="flex:1; gap: 20px;">
+    <div class="advantage-box" style="border-color: rgba(14,165,233,0.25);">
+      <div class="advantage-icon">💰</div>
+      <div class="advantage-title">تسعير مناسب للأسواق الناشئة</div>
+      <div class="advantage-desc">$299/شهر مقابل $800–$2000 للمنافسين — نفس الميزات بـ 40% من التكلفة</div>
+    </div>
+
+    <div class="advantage-box" style="border-color: rgba(99,102,241,0.25);">
+      <div class="advantage-icon">🌐</div>
+      <div class="advantage-title">عربي / إنجليزي — RTL أصيل</div>
+      <div class="advantage-desc">الوحيد المصمم أصلاً للعمل في بيئات ثنائية اللغة بالمنطقة العربية</div>
+    </div>
+
+    <div class="advantage-box" style="border-color: rgba(16,185,129,0.25);">
+      <div class="advantage-icon">⚙️</div>
+      <div class="advantage-title">معمارية حديثة — React 19 + AWS</div>
+      <div class="advantage-desc">تقنية 2026 — لا legacy code، لا تقنيات منتهية الدعم — قابل للتوسع فورياً</div>
+    </div>
+
+    <div class="advantage-box" style="border-color: rgba(245,158,11,0.25);">
+      <div class="advantage-icon">🚀</div>
+      <div class="advantage-title">Onboarding في أيام لا أشهر</div>
+      <div class="advantage-desc">تهيئة كاملة مع تدريب + ترميز QR للأصول خلال أسبوع واحد فقط</div>
+    </div>
+
+    <div class="advantage-box" style="border-color: rgba(14,165,233,0.25);">
+      <div class="advantage-icon">✅</div>
+      <div class="advantage-title">جاهزية HCAC / JCI / ISO 55000</div>
+      <div class="advantage-desc">تقارير الامتثال والمعايرة تُولَّد تلقائياً — ميزة فارقة للمستشفيات</div>
+    </div>
+
+    <div class="advantage-box" style="border-color: rgba(99,102,241,0.25);">
+      <div class="advantage-icon">📦</div>
+      <div class="advantage-title">المنتج جاهز الآن — لا مجرد فكرة</div>
+      <div class="advantage-desc">v1.1.0 مرفوع، مختبر E2E، وجاهز للعميل الأول — صفر مخاطر تقنية</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 11 — THE ASK & ROADMAP
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide slide-ask">
+  <div class="slide-num">11 / 11 — الطلب وخارطة الطريق</div>
+  <div class="timing-note">⏱ 25 ثانية</div>
+
+  <h2 class="slide-title" style="font-size: 36px; margin-bottom: 20px;">نحتاج <span style="color: #38BDF8;">$50,000</span> لنصل إلى <span style="color: #34D399;">$500K ARR</span>.</h2>
+
+  <div class="grid-2" style="flex:1; gap: 28px; align-items: start;">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="card card-blue">
+        <div class="kicker">توزيع الاستثمار المطلوب — $50,000</div>
+        <ul class="bullet-list" style="margin-top: 12px;">
+          <li><strong>40%</strong> تطوير المنتج (AI-Predictive PM، Mobile Native)</li>
+          <li><strong>30%</strong> فريق المبيعات وحضور المعارض (HIMSS، Arab Health)</li>
+          <li><strong>20%</strong> تهيئة أول 10 عملاء وترميز الأصول ميدانياً</li>
+          <li><strong>10%</strong> بنية تحتية وأمن سيبراني</li>
+        </ul>
+      </div>
+
+      <div class="card card-green" style="padding: 20px 24px;">
+        <div class="kicker">ما يحصل عليه المستثمر</div>
+        <ul class="bullet-list green">
+          <li>حصة في شركة ناشئة بمنتج جاهز وسوق معلوم</li>
+          <li>MRR متكرر وقابل للتنبؤ — SaaS Subscription Model</li>
+          <li>موقع مثالي لاستحواذ استراتيجي (UpKeep, IBM, SAP قسم MENA)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div>
+      <div class="kicker" style="margin-bottom: 16px;">Roadmap — 12 شهراً القادمة</div>
+
+      <div class="milestone">
+        <div class="milestone-q">Q1 2027</div>
+        <div class="milestone-text">تهيئة أول 5 عملاء مؤسسيين في الأردن (مستشفى + مصنعان)</div>
+        <div class="milestone-kpi">+$18K MRR</div>
+      </div>
+
+      <div class="milestone">
+        <div class="milestone-q">Q2 2027</div>
+        <div class="milestone-text">إطلاق Mobile App + Voice AI + إدارة المستودعات الذكية</div>
+        <div class="milestone-kpi">v2.0 Launch</div>
+      </div>
+
+      <div class="milestone">
+        <div class="milestone-q">Q3 2027</div>
+        <div class="milestone-text">التوسع في السعودية والإمارات — شراكة مع 2 موردين إقليميين</div>
+        <div class="milestone-kpi">+$60K MRR</div>
+      </div>
+
+      <div class="milestone" style="border-bottom: none;">
+        <div class="milestone-q">Q4 2027</div>
+        <div class="milestone-text">الوصول إلى 50 منشأة — ARR $500K وجولة Series A</div>
+        <div class="milestone-kpi" style="color: #34D399;">$500K ARR</div>
+      </div>
+
+      <div class="card" style="margin-top: 20px; padding: 14px 20px; background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.3);">
+        <div style="font-size: 13px; color: rgba(255,255,255,0.7);">
+          <strong style="color: #A5B4FC;">للتواصل:</strong>
+          Omar Daboubash — omar@nexcmms.online — nexcmms.online
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>
